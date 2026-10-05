@@ -4,6 +4,44 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-05 — Session 3: Phase 2 core pages
+
+**Done**
+- `/about`: story, IDFPR license box, physician section, values, team (only the doctor + pharmacist-in-charge
+  from `site.ts`; no invented staff).
+- `/services`: six services with details + jump links. Service data moved to `src/lib/services.ts`;
+  the home page cards read from it too.
+- `/faq`: grouped `<details>` accordion (insurance, transfers, delivery, ordering, payment). No JS needed.
+- `/contact`: form (server action `contact/actions.ts`, honeypot, server-side validation, no-medical-details
+  warning, 911 note) + phone, email, address/directions, hours. Saves to the new admin-only
+  **`contact-messages`** collection (no public REST create).
+- `(frontend)/not-found.tsx`: custom 404. The `[...slug]` catch-all now has `dynamicParams = true`, so
+  unknown URLs call `notFound()` and get the 404 inside the site layout (status 404).
+- Removed about/services/contact/faq from the coming-soon list. `site.deliveryArea` added (TODO placeholder).
+- Shared `PageHeader` component for inner-page title bands.
+
+**Verified**
+- `pnpm typecheck` and `pnpm build` pass; the four new pages prerender as static.
+- Chrome (via DevTools protocol) at 375px and 1280px: no horizontal scroll, one h1 per page.
+  FAQ items open; contact form shows field errors, keeps typed values, focuses the alert, and a valid
+  message saves to the local DB.
+
+**Known gaps**
+- Live preview has no `DATABASE_URL`, so the contact form there shows "couldn't send, please call us".
+  Works once Neon is connected.
+- No admin email for contact messages yet (Phase 3, Resend).
+- In `next dev`, the browser tab title on a 404 falls back to the default site title (server HTML has
+  "Page not found"). Not re-checked on the production build yet.
+- `pnpm lint` still broken (see Session 1).
+- Placeholder copy to confirm with client: vaccines offered, delivery radius, doctor bio, founding story,
+  insurance wording (all marked TODO in code).
+
+**Next**
+- Phase 2 last item: Payload **Site Settings** global so the client can edit business details.
+- Then Phase 3 (shop + pay-by-email orders).
+
+---
+
 ## 2026-10-05 — Session 2: client preview deployed
 
 **Live preview:** https://meridian-pharma.netlify.app (Netlify, auto-deploys on every push to `main`)

@@ -19,12 +19,13 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Initial git commit
 
 ## Phase 2 — Core pages
-- [ ] About page (story, doctor bio, team, values)
-- [ ] Services page (each service with detail; vaccinations, consultations, delivery area)
-- [ ] Contact page: form (name, email, phone, message) with a warning not to include medical details;
+- [x] About page (story, doctor bio, team, values)
+- [x] Services page (each service with detail; vaccinations, consultations, delivery area)
+- [x] Contact page: form (name, email, phone, message) with a warning not to include medical details;
       map link, hours, phone. Submissions saved in Payload `contact-messages` + email to admin (Phase 3 email)
-- [ ] FAQ page (accordion; insurance, transfers, delivery, ordering, payment)
-- [ ] Custom 404 page
+- [ ] Contact form: email the admin on each new message (do with Resend in Phase 3)
+- [x] FAQ page (accordion; insurance, transfers, delivery, ordering, payment)
+- [x] Custom 404 page
 - [ ] Move business details from `src/lib/site.ts` into a Payload **Site Settings** global so the client can edit them
 
 ## Phase 3 — Shop + pay-by-email orders
