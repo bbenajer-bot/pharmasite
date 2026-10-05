@@ -8,6 +8,7 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { ContactMessages } from './collections/ContactMessages'
+import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -32,6 +33,9 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
+    // Dev uses schema push; production (Neon) applies these migrations on startup.
+    // After changing collections: `pnpm payload migrate:create <name>` and commit the files.
+    prodMigrations: migrations,
   }),
   sharp,
   plugins: [],
