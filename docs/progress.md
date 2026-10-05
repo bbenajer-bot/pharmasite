@@ -4,6 +4,32 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-05 — Session 3b: Neon connected to the live preview
+
+**Done**
+- Neon free-tier Postgres (project `pharmacy-site`, AWS US East) created by the user, under their own
+  account for now. **Move it to the client's account at launch (Phase 7).**
+- Netlify env var `DATABASE_URL` = Neon string (set by the user). Local `.env` has `NEON_DATABASE_URL`
+  (the Neon string) next to the local `DATABASE_URL`; documented in `.env.example`.
+- First migration `src/migrations/20261005_172544_initial.ts` (all current tables), applied to Neon.
+- `prodMigrations` in `payload.config.ts`: the live site applies pending migrations on startup.
+  **Rule from now on:** after changing collections or globals, run
+  `pnpm payload migrate:create <name>` and commit the migration files. Dev still uses schema push.
+
+**Verified on https://meridian-pharma.netlify.app**
+- `/admin` returns 200 (create-first-user screen, since Neon has no users yet).
+- The contact form saves to Neon and shows the success message (test row deleted afterwards).
+
+**Notes**
+- `.env` is not shell-sourceable (the Neon URL contains `&`). Read single lines with grep instead of `source .env`.
+- The "contact form doesn't work on the live preview" gap from Session 3 is fixed.
+
+**Next**
+- Create an admin account on the live `/admin` (the user, with their own password).
+- Phase 2 last item: Payload **Site Settings** global (now safe, since the live site has a database).
+
+---
+
 ## 2026-10-05 — Session 3: Phase 2 core pages
 
 **Done**
@@ -27,8 +53,7 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
   message saves to the local DB.
 
 **Known gaps**
-- Live preview has no `DATABASE_URL`, so the contact form there shows "couldn't send, please call us".
-  Works once Neon is connected.
+- ~~Live preview has no `DATABASE_URL`~~ fixed in Session 3b (Neon connected).
 - No admin email for contact messages yet (Phase 3, Resend).
 - In `next dev`, the browser tab title on a 404 falls back to the default site title (server HTML has
   "Page not found"). Not re-checked on the production build yet.
