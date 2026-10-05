@@ -15,6 +15,10 @@ const jakarta = Plus_Jakarta_Sans({
   display: 'swap',
 })
 
+// Set NEXT_PUBLIC_PREVIEW_MODE=true on preview deployments: shows a banner and keeps search engines out
+// while the site still contains placeholder business details. Remove the variable at launch.
+const isPreview = process.env.NEXT_PUBLIC_PREVIEW_MODE === 'true'
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
@@ -22,6 +26,7 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description: site.description,
+  ...(isPreview && { robots: { index: false, follow: false } }),
 }
 
 export default function FrontendLayout({ children }: { children: React.ReactNode }) {
@@ -34,6 +39,12 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
         >
           Skip to content
         </a>
+        {isPreview && (
+          <div className="bg-amber-100 px-4 py-2 text-center text-sm font-medium text-amber-950">
+            Preview site, work in progress. Names, contact details, and products shown are
+            placeholders. Not open for orders or prescription requests yet.
+          </div>
+        )}
         <Header />
         <main id="main" className="flex-1">
           {children}
