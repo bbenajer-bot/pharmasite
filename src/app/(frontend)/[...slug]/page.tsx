@@ -11,24 +11,42 @@ import { site } from '@/lib/site'
  * so remove each entry here once its page exists. Delete this file when the list is empty.
  */
 const upcoming: Record<string, { title: string; blurb: string }> = {
-  shop: { title: 'Shop', blurb: 'Browse vitamins, first aid, personal care, and everyday health essentials.' },
+  shop: {
+    title: 'Shop',
+    blurb: 'Browse vitamins, first aid, personal care, and everyday health essentials.',
+  },
   cart: { title: 'Cart', blurb: 'Review your items and place your order.' },
-  services: { title: 'Services', blurb: 'Refills, doctor consultations, vaccinations, medication reviews, and delivery.' },
+  services: {
+    title: 'Services',
+    blurb: 'Refills, doctor consultations, vaccinations, medication reviews, and delivery.',
+  },
   prescriptions: {
     title: 'Prescription requests',
     blurb: 'Request a prescription online and have it reviewed by our doctor.',
   },
   blog: { title: 'Blog', blurb: 'Health tips and medication advice from our pharmacists.' },
-  about: { title: 'About us', blurb: `The story behind ${site.name} and the team who care for you.` },
-  contact: { title: 'Contact', blurb: 'Send us a message, or find our address, hours, and phone number.' },
-  faq: { title: 'FAQ', blurb: 'Answers to common questions about ordering, refills, and delivery.' },
+  about: {
+    title: 'About us',
+    blurb: `The story behind ${site.name} and the team who care for you.`,
+  },
+  contact: {
+    title: 'Contact',
+    blurb: 'Send us a message, or find our address, hours, and phone number.',
+  },
+  faq: {
+    title: 'FAQ',
+    blurb: 'Answers to common questions about ordering, refills, and delivery.',
+  },
   privacy: { title: 'Privacy Policy', blurb: 'How we collect, use, and protect your information.' },
   'hipaa-notice': {
     title: 'Notice of Privacy Practices',
     blurb: 'How your health information may be used and your rights regarding it.',
   },
   terms: { title: 'Terms of Use', blurb: 'The terms that apply when you use this website.' },
-  accessibility: { title: 'Accessibility', blurb: 'Our commitment to making this site usable for everyone.' },
+  accessibility: {
+    title: 'Accessibility',
+    blurb: 'Our commitment to making this site usable for everyone.',
+  },
 }
 
 type Props = { params: Promise<{ slug: string[] }> }
