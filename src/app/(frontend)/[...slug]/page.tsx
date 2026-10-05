@@ -8,7 +8,8 @@ import { site } from '@/lib/site'
 /**
  * Temporary "coming soon" pages for routes that are linked from the menu/footer but not built yet.
  * A real page at the same path (e.g. src/app/(frontend)/shop/page.tsx) automatically takes priority,
- * so remove each entry here once its page exists. Delete this file when the list is empty.
+ * so remove each entry here once its page exists. When the list is empty, keep this file only as the
+ * catch-all that sends unknown URLs to the custom 404 (or replace it with app/global-not-found.tsx).
  */
 const upcoming: Record<string, { title: string; blurb: string }> = {
   shop: {
@@ -16,27 +17,11 @@ const upcoming: Record<string, { title: string; blurb: string }> = {
     blurb: 'Browse vitamins, first aid, personal care, and everyday health essentials.',
   },
   cart: { title: 'Cart', blurb: 'Review your items and place your order.' },
-  services: {
-    title: 'Services',
-    blurb: 'Refills, doctor consultations, vaccinations, medication reviews, and delivery.',
-  },
   prescriptions: {
     title: 'Prescription requests',
     blurb: 'Request a prescription online and have it reviewed by our doctor.',
   },
   blog: { title: 'Blog', blurb: 'Health tips and medication advice from our pharmacists.' },
-  about: {
-    title: 'About us',
-    blurb: `The story behind ${site.name} and the team who care for you.`,
-  },
-  contact: {
-    title: 'Contact',
-    blurb: 'Send us a message, or find our address, hours, and phone number.',
-  },
-  faq: {
-    title: 'FAQ',
-    blurb: 'Answers to common questions about ordering, refills, and delivery.',
-  },
   privacy: { title: 'Privacy Policy', blurb: 'How we collect, use, and protect your information.' },
   'hipaa-notice': {
     title: 'Notice of Privacy Practices',
@@ -55,7 +40,8 @@ export function generateStaticParams() {
   return Object.keys(upcoming).map((key) => ({ slug: [key] }))
 }
 
-export const dynamicParams = false
+// Unknown URLs fall through to notFound(), which renders (frontend)/not-found.tsx inside the site layout.
+export const dynamicParams = true
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
