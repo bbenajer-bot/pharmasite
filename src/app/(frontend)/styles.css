@@ -1,0 +1,79 @@
+@import 'tailwindcss';
+
+/*
+ * Brand tokens. Change colors here and the whole public site follows.
+ * Palette: clean clinical — deep navy text, trustworthy blue primary,
+ * soft sky surfaces, a calm green accent for "open / available" states.
+ * All text/background pairs used on the site meet WCAG AA contrast.
+ */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #0b1f3a;
+  --color-ink-soft: #3d4f66;
+  --color-muted: #5b6b80;
+
+  --color-brand-50: #eef5ff;
+  --color-brand-100: #d9e8ff;
+  --color-brand-200: #b8d4ff;
+  --color-brand-500: #2f74e0;
+  --color-brand-600: #1f5fc4;
+  --color-brand-700: #1a4d9e;
+  --color-brand-900: #0f2c5c;
+
+  --color-mint-50: #ecfbf4;
+  --color-mint-500: #16a36a;
+  --color-mint-700: #0d7a4e;
+
+  --color-line: #e3e9f2;
+  --color-surface: #f6f9fd;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight text-ink;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold whitespace-nowrap transition-colors;
+  }
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .btn-secondary {
+    @apply border border-line bg-white text-ink hover:border-brand-200 hover:bg-brand-50;
+  }
+  .eyebrow {
+    @apply text-sm font-semibold uppercase tracking-wider text-brand-600;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

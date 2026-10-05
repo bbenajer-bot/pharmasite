@@ -1,0 +1,48 @@
+# Progress Log
+
+Newest entry on top. Each session: what got done, what's unfinished, what's next.
+
+---
+
+## 2026-10-05 — Session 1: project setup + home page
+
+**Done**
+- Scaffolded from Payload's official `blank` template (v3.90.2), switched MongoDB → Postgres adapter.
+- Created local Postgres DB `pharmacy_site`; `.env` (git-ignored) + `.env.example`.
+- Tailwind v4 with brand tokens; fonts Inter (body) + Plus Jakarta Sans (headings).
+- `src/lib/site.ts` holds every business detail. **All placeholders** (name "Meridian Pharmacy",
+  fictional 555 phone, example address, fake license #, "Dr. Alex Morgan").
+- Header with mobile menu, Footer with hours/address/license/IDFPR verify link and legal links.
+- Home page sections: Hero, Services, How it works, Featured products (static samples),
+  About teaser, Blog teaser (static samples), Visit us.
+- CLAUDE.md, docs/scope.md, docs/build-plan.md.
+
+**Verified**
+- `pnpm typecheck` and `pnpm build` pass; home page prerenders as static.
+- Checked in the browser at 1280px, 1024px and 375px (mobile menu opens and lists every link,
+  no horizontal scroll, no console errors). `/admin` loads the create-first-user screen.
+
+**Known issue: `pnpm lint` fails**
+- The template's `eslint.config.mjs` uses `FlatCompat` + `extends('next/core-web-vitals')`, which crashes
+  with eslint-config-next 16 ("Converting circular structure to JSON"). Fix: replace it with
+  `import nextVitals from 'eslint-config-next/core-web-vitals'` and
+  `import nextTs from 'eslint-config-next/typescript'`, then export `[...nextVitals, ...nextTs, {rules…}, {ignores…}]`.
+- Not applied yet: the ecc plugin's config-protection hook blocks edits to lint configs. Disable that
+  hook for one edit (or make the change by hand), then delete the `@eslint/eslintrc` devDependency.
+
+**Dev notes**
+- Port 3000 is often taken by another local project; the preview config uses `autoPort`, so the
+  dev server may run on a random port. Check the terminal output for the URL.
+- Slow internet: install with `pnpm install --prefer-offline`.
+
+**Known gaps (expected at this stage)**
+- Nav links (Shop, Services, Prescriptions, Blog, About, Contact, Cart, legal pages) go to 404
+  until their phases are built.
+- Service claims (vaccines offered, delivery, refill reminders) are placeholder copy; confirm with client.
+
+**Waiting on the client**
+- Pharmacy name, address, phone, hours, license numbers, doctor's name/bio
+- Which pharmacy software and EHR they use (decides booking + refill portal approach)
+
+**Next**
+- Finish the Phase 1 checklist (admin user, build check, first commit), then Phase 2: core pages.
