@@ -4,6 +4,25 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-05 — Session 2: client preview deployed
+
+**Live preview:** https://meridian-pharma.netlify.app (Netlify, auto-deploys on every push to `main`)
+**Repo:** https://github.com/camilleyeyou/pharmacy-site (private)
+
+**Done**
+- `netlify.toml` (pnpm build, Node 22) and `packageManager` pin in package.json.
+- Preview mode: Netlify env `NEXT_PUBLIC_PREVIEW_MODE=true` shows a "work in progress" banner and
+  sets `noindex`. **Remove that env var at real launch.**
+- `src/app/(frontend)/[...slug]/page.tsx`: "Coming soon" pages for every menu/footer link not built yet.
+  When you build a real page (e.g. `/shop`), delete its entry from the `upcoming` list in that file.
+
+**Netlify env vars set:** `NEXT_PUBLIC_PREVIEW_MODE`, `PAYLOAD_SECRET`. No `DATABASE_URL` yet, so
+`/admin` does not work on the live site until Neon is connected (Phase 7, or earlier if needed).
+
+**GitHub CLI:** installed at `~/.local/bin/gh` (Homebrew couldn't connect), logged in as camilleyeyou.
+
+---
+
 ## 2026-10-05 — Session 1: project setup + home page
 
 **Done**
