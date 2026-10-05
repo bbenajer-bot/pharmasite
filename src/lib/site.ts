@@ -40,6 +40,9 @@ export const site = {
     name: 'Dr. Alex Morgan, MD', // TODO: real doctor name + credentials
     title: 'Founder & Supervising Physician',
   },
+
+  // TODO: confirm the real delivery radius and any fee with the client
+  deliveryArea: 'within 5 miles of the pharmacy',
 } as const
 
 export const nav = [

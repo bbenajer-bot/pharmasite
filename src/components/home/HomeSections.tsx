@@ -4,16 +4,14 @@ import {
   CalendarCheck,
   CheckCircle2,
   ClipboardList,
-  HeartPulse,
   MapPin,
   Package,
   Pill,
   ShieldCheck,
   Stethoscope,
-  Syringe,
-  Truck,
 } from 'lucide-react'
 
+import { services } from '@/lib/services'
 import { fullAddress, site } from '@/lib/site'
 
 /* ------------------------------------------------------------------ */
@@ -128,39 +126,6 @@ function HeroVisual() {
 /* Services                                                            */
 /* ------------------------------------------------------------------ */
 
-const services = [
-  {
-    icon: Pill,
-    title: 'Prescription refills',
-    body: 'Transfer or refill your prescriptions quickly, with reminders so you never run out.',
-  },
-  {
-    icon: Stethoscope,
-    title: 'Doctor consultations',
-    body: 'Request a prescription or book a visit. Our physician reviews every request personally.',
-  },
-  {
-    icon: Syringe,
-    title: 'Vaccinations',
-    body: 'Flu, COVID-19, shingles, and travel vaccines. Walk in or book ahead.',
-  },
-  {
-    icon: ClipboardList,
-    title: 'Medication reviews',
-    body: 'A one-on-one check of everything you take, to catch interactions and save money.',
-  },
-  {
-    icon: Truck,
-    title: 'Local delivery',
-    body: 'Prescriptions and health products delivered to your door in the local area.',
-  },
-  {
-    icon: HeartPulse,
-    title: 'Health & wellness shop',
-    body: 'Vitamins, first aid, personal care, and everyday essentials, available online.',
-  },
-]
-
 export function Services() {
   return (
     <section className="py-20" aria-labelledby="services-heading">
@@ -176,16 +141,16 @@ export function Services() {
           </p>
         </div>
         <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map(({ icon: Icon, title, body }) => (
+          {services.map(({ id, icon: Icon, title, summary }) => (
             <li
-              key={title}
+              key={id}
               className="group rounded-2xl border border-line bg-white p-6 transition-shadow hover:shadow-lg hover:shadow-brand-900/5"
             >
               <span className="flex size-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white">
                 <Icon className="size-6" aria-hidden />
               </span>
               <h3 className="mt-5 text-lg font-semibold">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-soft">{body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-ink-soft">{summary}</p>
             </li>
           ))}
         </ul>
