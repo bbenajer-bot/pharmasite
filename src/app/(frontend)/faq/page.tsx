@@ -3,7 +3,8 @@ import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 
 import { PageHeader } from '@/components/layout/PageHeader'
-import { site } from '@/lib/site'
+import { getSiteSettings } from '@/lib/settings'
+import type { SiteSettings } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'FAQ',
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 type QA = { q: string; a: React.ReactNode }
 
 // TODO: confirm insurance, delivery, and payment answers with the client before launch.
-const groups: { id: string; title: string; items: QA[] }[] = [
+const getGroups = (site: SiteSettings): { id: string; title: string; items: QA[] }[] => [
   {
     id: 'insurance',
     title: 'Insurance',
@@ -117,7 +118,10 @@ const groups: { id: string; title: string; items: QA[] }[] = [
   },
 ]
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const site = await getSiteSettings()
+  const groups = getGroups(site)
+
   return (
     <>
       <PageHeader eyebrow="FAQ" title="Frequently asked questions">

@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { Clock, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react'
 
-import { fullAddress, nav, site } from '@/lib/site'
+import { getSiteSettings } from '@/lib/settings'
+import { nav } from '@/lib/site'
 import { Logo } from './Logo'
 
 const legal = [
@@ -11,12 +12,14 @@ const legal = [
   { label: 'Accessibility', href: '/accessibility' },
 ]
 
-export function Footer() {
+export async function Footer() {
+  const site = await getSiteSettings()
+
   return (
     <footer className="bg-brand-900 text-brand-100">
       <div className="container-page grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-4">
-          <Logo inverted />
+          <Logo name={site.name} inverted />
           <p className="max-w-xs text-sm leading-relaxed text-brand-100/80">{site.description}</p>
         </div>
 
@@ -42,7 +45,7 @@ export function Footer() {
           <ul className="space-y-3 text-sm">
             <li className="flex gap-2">
               <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden />
-              <span>{fullAddress}</span>
+              <span>{site.fullAddress}</span>
             </li>
             <li className="flex gap-2">
               <Phone className="mt-0.5 size-4 shrink-0" aria-hidden />

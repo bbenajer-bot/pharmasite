@@ -1,7 +1,5 @@
-import { site } from '@/lib/site'
-
 /** Text + icon logo. The mark is a rounded pharmacy cross; swap for a real logo file later if desired. */
-export function Logo({ inverted = false }: { inverted?: boolean }) {
+export function Logo({ name, inverted = false }: { name: string; inverted?: boolean }) {
   return (
     <span className="flex items-center gap-2.5">
       <svg viewBox="0 0 32 32" className="size-8" aria-hidden>
@@ -21,7 +19,7 @@ export function Logo({ inverted = false }: { inverted?: boolean }) {
           inverted ? 'text-white' : 'text-ink'
         }`}
       >
-        {site.name}
+        {name}
       </span>
     </span>
   )

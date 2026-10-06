@@ -5,10 +5,11 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Menu, Phone, ShoppingBag, X } from 'lucide-react'
 
-import { nav, site } from '@/lib/site'
+import { nav } from '@/lib/site'
 import { Logo } from './Logo'
 
-export function Header() {
+/** Client component: business details come in as props from the (server) layout. */
+export function Header({ site }: { site: { name: string; phone: string; phoneHref: string } }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
@@ -19,7 +20,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link href="/" className="shrink-0" aria-label={`${site.name} home`}>
-          <Logo />
+          <Logo name={site.name} />
         </Link>
 
         <nav aria-label="Main" className="hidden lg:block">

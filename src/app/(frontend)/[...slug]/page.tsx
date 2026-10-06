@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Hammer, Phone } from 'lucide-react'
 
-import { site } from '@/lib/site'
+import { getSiteSettings } from '@/lib/settings'
 
 /**
  * Temporary "coming soon" pages for routes that are linked from the menu/footer but not built yet.
@@ -53,6 +53,7 @@ export default async function ComingSoonPage({ params }: Props) {
   const { slug } = await params
   const page = upcoming[slug.join('/')]
   if (!page) notFound()
+  const site = await getSiteSettings()
 
   return (
     <section className="bg-gradient-to-b from-brand-50 to-white">

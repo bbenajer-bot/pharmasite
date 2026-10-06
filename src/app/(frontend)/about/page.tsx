@@ -3,11 +3,14 @@ import Link from 'next/link'
 import { ArrowRight, BadgeCheck, Clock, HandHeart, MessageCircle, ShieldCheck } from 'lucide-react'
 
 import { PageHeader } from '@/components/layout/PageHeader'
-import { site } from '@/lib/site'
+import { getSiteSettings } from '@/lib/settings'
 
-export const metadata: Metadata = {
-  title: 'About us',
-  description: `The story behind ${site.name}, a physician-led Illinois pharmacy, and the team who care for you.`,
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteSettings()
+  return {
+    title: 'About us',
+    description: `The story behind ${site.name}, a physician-led Illinois pharmacy, and the team who care for you.`,
+  }
 }
 
 const initials = (name: string) =>
@@ -42,17 +45,16 @@ const values = [
   },
 ]
 
-// TODO: replace with the real team (names, roles, short bios) once the client provides them.
-// Only list people who actually work here; no invented staff.
-const team = [
-  { name: site.doctor.name, role: site.doctor.title },
-  {
-    name: site.license.pharmacistInCharge.replace(/^Pharmacist-in-charge:\s*/, ''),
-    role: 'Pharmacist-in-charge',
-  },
-]
+export default async function AboutPage() {
+  const site = await getSiteSettings()
 
-export default function AboutPage() {
+  // TODO: replace with the real team (names, roles, short bios) once the client provides them.
+  // Only list people who actually work here; no invented staff.
+  const team = [
+    { name: site.doctor.name, role: site.doctor.title },
+    { name: site.license.pharmacist, role: 'Pharmacist-in-charge' },
+  ]
+
   return (
     <>
       <PageHeader eyebrow="About us" title="A pharmacy led by a doctor who knows your name">

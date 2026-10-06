@@ -11,8 +11,8 @@ import {
   Stethoscope,
 } from 'lucide-react'
 
-import { services } from '@/lib/services'
-import { fullAddress, site } from '@/lib/site'
+import { getServices } from '@/lib/services'
+import { getSiteSettings } from '@/lib/settings'
 
 /* ------------------------------------------------------------------ */
 /* Hero                                                                */
@@ -126,7 +126,9 @@ function HeroVisual() {
 /* Services                                                            */
 /* ------------------------------------------------------------------ */
 
-export function Services() {
+export async function Services() {
+  const services = getServices(await getSiteSettings())
+
   return (
     <section className="py-20" aria-labelledby="services-heading">
       <div className="container-page">
@@ -300,7 +302,8 @@ export function FeaturedProducts() {
 /* About teaser                                                        */
 /* ------------------------------------------------------------------ */
 
-export function AboutTeaser() {
+export async function AboutTeaser() {
+  const site = await getSiteSettings()
   const initials = site.doctor.name
     .replace(/^Dr\.?\s*/, '')
     .split(/[\s,]+/)
@@ -415,8 +418,9 @@ export function BlogTeaser() {
 /* Visit us                                                            */
 /* ------------------------------------------------------------------ */
 
-export function VisitUs() {
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`
+export async function VisitUs() {
+  const site = await getSiteSettings()
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.fullAddress)}`
 
   return (
     <section className="bg-surface py-20" aria-labelledby="visit-heading">
@@ -444,7 +448,7 @@ export function VisitUs() {
           <div className="rounded-2xl bg-white p-6 shadow-sm">
             <MapPin className="size-6 text-brand-600" aria-hidden />
             <h3 className="mt-4 font-semibold">Address</h3>
-            <p className="mt-1 text-sm text-ink-soft">{fullAddress}</p>
+            <p className="mt-1 text-sm text-ink-soft">{site.fullAddress}</p>
             <a
               href={mapsUrl}
               target="_blank"

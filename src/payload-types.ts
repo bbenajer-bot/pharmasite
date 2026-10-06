@@ -89,8 +89,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -351,6 +355,108 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Business details shown across the website. Changes appear on the site within a few seconds of saving.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  name: string;
+  /**
+   * One or two sentences. Used in the footer and search results.
+   */
+  description: string;
+  /**
+   * Completes the sentence "We deliver …", e.g. "within 5 miles of the pharmacy".
+   */
+  deliveryArea: string;
+  /**
+   * US number, e.g. (312) 555-0142
+   */
+  phone: string;
+  email: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  hours?:
+    | {
+        /**
+         * e.g. Monday – Friday
+         */
+        days: string;
+        /**
+         * e.g. 9:00 AM – 7:00 PM, or Closed
+         */
+        time: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Shown in the footer with a link to verify at IDFPR.
+   */
+  license: {
+    number: string;
+    /**
+     * Name and credentials, e.g. Jane Doe, PharmD
+     */
+    pharmacist: string;
+  };
+  doctor: {
+    /**
+     * e.g. Dr. Alex Morgan, MD
+     */
+    name: string;
+    title: string;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  deliveryArea?: T;
+  phone?: T;
+  email?: T;
+  address?:
+    | T
+    | {
+        street?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+      };
+  hours?:
+    | T
+    | {
+        days?: T;
+        time?: T;
+        id?: T;
+      };
+  license?:
+    | T
+    | {
+        number?: T;
+        pharmacist?: T;
+      };
+  doctor?:
+    | T
+    | {
+        name?: T;
+        title?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

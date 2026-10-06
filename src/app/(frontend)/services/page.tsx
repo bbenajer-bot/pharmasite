@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 
 import { PageHeader } from '@/components/layout/PageHeader'
-import { services } from '@/lib/services'
-import { site } from '@/lib/site'
+import { getServices } from '@/lib/services'
+import { getSiteSettings } from '@/lib/settings'
 
 export const metadata: Metadata = {
   title: 'Services',
@@ -12,7 +12,10 @@ export const metadata: Metadata = {
     'Prescription refills and transfers, doctor-reviewed prescription requests, vaccinations, medication reviews, and local delivery.',
 }
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const site = await getSiteSettings()
+  const services = getServices(site)
+
   return (
     <>
       <PageHeader eyebrow="Services" title="Care that goes beyond the counter">

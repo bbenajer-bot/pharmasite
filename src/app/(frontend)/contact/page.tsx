@@ -2,16 +2,20 @@ import type { Metadata } from 'next'
 import { ArrowRight, CalendarCheck, Mail, MapPin, Phone } from 'lucide-react'
 
 import { PageHeader } from '@/components/layout/PageHeader'
-import { fullAddress, site } from '@/lib/site'
+import { getSiteSettings } from '@/lib/settings'
 import { ContactForm } from './ContactForm'
 
-export const metadata: Metadata = {
-  title: 'Contact',
-  description: `Contact ${site.name}: send a message, call ${site.phone}, or visit us at ${fullAddress}.`,
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteSettings()
+  return {
+    title: 'Contact',
+    description: `Contact ${site.name}: send a message, call ${site.phone}, or visit us at ${site.fullAddress}.`,
+  }
 }
 
-export default function ContactPage() {
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`
+export default async function ContactPage() {
+  const site = await getSiteSettings()
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.fullAddress)}`
 
   return (
     <>
@@ -57,7 +61,7 @@ export default function ContactPage() {
           <div className="rounded-2xl bg-surface p-6">
             <MapPin className="size-6 text-brand-600" aria-hidden />
             <h2 className="mt-4 font-semibold">Address</h2>
-            <p className="mt-1 text-sm text-ink-soft">{fullAddress}</p>
+            <p className="mt-1 text-sm text-ink-soft">{site.fullAddress}</p>
             <a
               href={mapsUrl}
               target="_blank"

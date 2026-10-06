@@ -4,7 +4,7 @@ import React from 'react'
 
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
-import { site } from '@/lib/site'
+import { getSiteSettings } from '@/lib/settings'
 import './styles.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -19,17 +19,22 @@ const jakarta = Plus_Jakarta_Sans({
 // while the site still contains placeholder business details. Remove the variable at launch.
 const isPreview = process.env.NEXT_PUBLIC_PREVIEW_MODE === 'true'
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
-  title: {
-    default: `${site.name} | Licensed Illinois Pharmacy`,
-    template: `%s | ${site.name}`,
-  },
-  description: site.description,
-  ...(isPreview && { robots: { index: false, follow: false } }),
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteSettings()
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+    title: {
+      default: `${site.name} | Licensed Illinois Pharmacy`,
+      template: `%s | ${site.name}`,
+    },
+    description: site.description,
+    ...(isPreview && { robots: { index: false, follow: false } }),
+  }
 }
 
-export default function FrontendLayout({ children }: { children: React.ReactNode }) {
+export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
+  const site = await getSiteSettings()
+
   return (
     <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
       <body className="flex min-h-screen flex-col">
@@ -45,7 +50,7 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
             placeholders. Not open for orders or prescription requests yet.
           </div>
         )}
-        <Header />
+        <Header site={{ name: site.name, phone: site.phone, phoneHref: site.phoneHref }} />
         <main id="main" className="flex-1">
           {children}
         </main>

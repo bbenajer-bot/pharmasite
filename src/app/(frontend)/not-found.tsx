@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft, HelpCircle, MessageSquare, Phone, Pill, ShoppingBag } from 'lucide-react'
 
-import { site } from '@/lib/site'
+import { getSiteSettings } from '@/lib/settings'
 
 export const metadata: Metadata = {
   title: 'Page not found',
@@ -16,7 +16,9 @@ const links = [
   { href: '/contact', label: 'Contact us', icon: MessageSquare },
 ]
 
-export default function NotFound() {
+export default async function NotFound() {
+  const site = await getSiteSettings()
+
   return (
     <section className="bg-gradient-to-b from-brand-50 to-white">
       <div className="container-page flex flex-col items-center py-24 text-center md:py-32">

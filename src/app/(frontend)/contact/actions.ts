@@ -3,7 +3,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-import { site } from '@/lib/site'
+import { getSiteSettings } from '@/lib/settings'
 
 export type ContactFields = { name: string; email: string; phone: string; message: string }
 
@@ -53,6 +53,7 @@ export async function sendContactMessage(
     // TODO (Phase 3): email the admin "New contact message" via Resend.
   } catch (err) {
     console.error('Contact form: could not save message', err)
+    const site = await getSiteSettings()
     return {
       status: 'error',
       message: `Sorry, we couldn't send your message right now. Please call us at ${site.phone}.`,

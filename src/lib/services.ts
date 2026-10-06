@@ -8,10 +8,11 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import { site } from './site'
+import type { SiteSettings } from './site'
 
 /**
  * Services offered, used by the home page cards (`summary`) and the Services page (`details`, `points`).
+ * Built from the current site settings because some copy includes the phone, doctor, and delivery area.
  * TODO: confirm every service, vaccine, and the delivery area with the client before launch.
  */
 export type Service = {
@@ -24,7 +25,7 @@ export type Service = {
   cta?: { label: string; href: string }
 }
 
-export const services: Service[] = [
+export const getServices = (site: SiteSettings): Service[] => [
   {
     id: 'refills',
     icon: Pill,

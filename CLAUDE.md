@@ -58,23 +58,39 @@ Secrets live in `.env` (git-ignored). Document every new variable in `.env.examp
 src/
   app/(frontend)/        public site pages (own root layout, Tailwind)
   app/(payload)/         Payload admin + API routes — generated, don't hand-edit
-  collections/           Payload collections (Users, Media, later Products, Posts, Orders, …)
+  collections/           Payload collections (Users, Media, ContactMessages, later Products, Posts, Orders, …)
+  globals/               Payload globals (SiteSettings: business details the client edits)
+  migrations/            Postgres migrations for production (Neon); applied by `pnpm run ci` on Netlify
   components/layout/     Header, Footer, Logo
   components/home/       Home page sections
-  lib/site.ts            ALL business details (name, phone, address, hours, license, doctor)
+  lib/site.ts            business-details types, placeholder defaults, nav
+  lib/settings.ts        getSiteSettings(): live business details (cached; falls back to site.ts defaults)
   payload.config.ts      Payload config
 docs/                    scope, build plan, progress log
 ```
 
 ## Conventions
 
-- Business details (name, phone, hours, license #) come from `src/lib/site.ts` — never hard-code them.
-  Values marked `TODO` are placeholders to replace before launch.
+- Business details (name, phone, hours, license #) come from `await getSiteSettings()` (`src/lib/settings.ts`),
+  which reads the **Site Settings** global the client edits in `/admin` — never hard-code them.
+  Client components get them as props. Defaults/placeholders (`TODO`) live in `src/lib/site.ts`.
+- After changing collections or globals: `pnpm generate:types` and `pnpm payload migrate:create <name>`,
+  then commit the migration files (dev uses schema push; production only gets migrations).
 - Use the theme tokens (`text-ink`, `bg-brand-600`, `border-line`, …) and the `.btn`, `.btn-primary`,
   `.btn-secondary`, `.container-page`, `.eyebrow` classes; don't introduce new ad-hoc colors.
 - Server components by default; add `'use client'` only when needed (state, effects, handlers).
 - Accessibility is required (US healthcare sites get ADA lawsuits): semantic HTML, one `h1` per page,
   labelled form fields, visible focus, alt text, `aria-hidden` on decorative icons, AA contrast.
-- Every public page exports `metadata` (title + description).
+- Every public page exports `metadata` or `generateMetadata` (title + description).
 - No fake reviews/testimonials, no invented credentials or medical claims.
 - Commit after each finished checklist item with a clear message.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

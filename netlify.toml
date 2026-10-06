@@ -1,6 +1,7 @@
 # Netlify build settings. Netlify detects Next.js automatically and deploys it with its Next.js runtime.
 [build]
-  command = "pnpm build"
+  # Apply pending database migrations to Neon, then build.
+  command = "pnpm run ci"
   publish = ".next"
 
 [build.environment]
