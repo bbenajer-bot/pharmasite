@@ -68,6 +68,13 @@ export const Orders: CollectionConfig = {
       },
     ],
     afterChange: [
+      async ({ doc, operation, req }) => {
+        if (operation !== 'create') return doc
+        // Lazy import: the email module reads site settings, which import the Payload config.
+        const { sendNewOrderToStaff, sendOrderReceived } = await import('@/lib/email/orders')
+        await Promise.all([sendNewOrderToStaff(req.payload, doc), sendOrderReceived(req.payload, doc)])
+        return doc
+      },
       async ({ doc, previousDoc, operation, req }) => {
         // Return reserved stock when an order is cancelled.
         if (operation !== 'update' || doc.status !== 'cancelled' || previousDoc?.status === 'cancelled') {

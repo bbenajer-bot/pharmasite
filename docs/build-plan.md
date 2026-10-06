@@ -23,7 +23,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Services page (each service with detail; vaccinations, consultations, delivery area)
 - [x] Contact page: form (name, email, phone, message) with a warning not to include medical details;
       map link, hours, phone. Submissions saved in Payload `contact-messages` + email to admin (Phase 3 email)
-- [ ] Contact form: email the admin on each new message (do with Resend in Phase 3)
+- [x] Contact form: email the admin on each new message (do with Resend in Phase 3)
 - [x] FAQ page (accordion; insurance, transfers, delivery, ordering, payment)
 - [x] Custom 404 page
 - [x] Move business details from `src/lib/site.ts` into a Payload **Site Settings** global so the client can edit them
@@ -38,7 +38,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
       (`awaiting-payment` → `paid` → `shipped` → `delivered` / `cancelled`), order number
 - [x] Global **Payment Instructions**: text per payment method (PayPal, Venmo, Cash App, Zelle, Apple Pay, invoice)
       — built as the "Payment methods" tab of the **Shop Settings** global (also holds delivery options/fees)
-- [ ] Resend integration: new-order email to admin, order-received email to customer
+- [x] Resend integration: new-order email to admin, order-received email to customer
 - [ ] Admin button "Send payment instructions" + status-change emails to customer
 - [ ] Scheduled job: reminder at 48h unpaid, auto-cancel at 7 days (Netlify scheduled function)
 - [ ] Replace home page sample products with real `featured` products

@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -30,6 +31,16 @@ export default buildConfig({
   collections: [Orders, Products, Categories, Users, Media, ContactMessages],
   globals: [SiteSettings, ShopSettings],
   editor: lexicalEditor(),
+  // Without RESEND_API_KEY (local dev), Payload prints emails to the server console instead.
+  email: process.env.RESEND_API_KEY
+    ? resendAdapter({
+        apiKey: process.env.RESEND_API_KEY,
+        defaultFromAddress: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+        defaultFromName: process.env.EMAIL_FROM_NAME || 'Pharmacy',
+        // Testing: send every email to this address instead of the real recipient.
+        overrideRecipientAddress: process.env.EMAIL_OVERRIDE_TO || undefined,
+      })
+    : undefined,
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
