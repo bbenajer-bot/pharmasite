@@ -64,6 +64,42 @@
   .eyebrow {
     @apply text-sm font-semibold uppercase tracking-wider text-brand-600;
   }
+  .input {
+    @apply block w-full rounded-xl border border-line bg-white px-4 py-3 text-ink placeholder:text-muted focus:border-brand-500 focus:ring-2 focus:ring-brand-200 focus:outline-none aria-[invalid=true]:border-red-600;
+  }
+  /* Body text written in the admin's rich-text editor (product descriptions, blog posts). */
+  .rich-text {
+    @apply leading-relaxed text-ink-soft;
+  }
+  .rich-text > * + * {
+    @apply mt-4;
+  }
+  .rich-text h2,
+  .rich-text h3,
+  .rich-text h4 {
+    @apply mt-8 font-bold;
+  }
+  .rich-text h2 {
+    @apply text-2xl;
+  }
+  .rich-text h3 {
+    @apply text-xl;
+  }
+  .rich-text ul {
+    @apply list-disc space-y-1 pl-6;
+  }
+  .rich-text ol {
+    @apply list-decimal space-y-1 pl-6;
+  }
+  .rich-text a {
+    @apply font-medium text-brand-600 underline underline-offset-2 hover:text-brand-700;
+  }
+  .rich-text strong {
+    @apply font-semibold text-ink;
+  }
+  .rich-text blockquote {
+    @apply border-l-4 border-brand-200 pl-4 italic;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

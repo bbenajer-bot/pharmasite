@@ -31,7 +31,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 ## Phase 3 — Shop + pay-by-email orders
 - [x] Collections: `products` (name, slug, description, price, images, category, stock, `isOTC` must be true,
       featured flag), `categories`
-- [ ] Shop page (grid, category filter, search), product detail page
+- [x] Shop page (grid, category filter, search), product detail page
 - [ ] Cart (client-side, persisted in localStorage), cart page
 - [ ] Checkout form: contact, shipping/pickup, preferred payment method
 - [ ] `orders` collection: items snapshot, totals, status
