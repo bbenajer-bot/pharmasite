@@ -4,6 +4,37 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-05 — Session 4: Site Settings global (Phase 2 complete)
+
+**Done**
+- `src/globals/SiteSettings.ts`: admin → Settings → **Site Settings**, three tabs (Business; Contact & hours;
+  License & doctor). Fields prefilled from the defaults in `src/lib/site.ts`.
+- `src/lib/settings.ts` → `getSiteSettings()`: reads the global through `unstable_cache` (tag `site-settings`),
+  fills empty fields from the defaults, and falls back to the defaults if the DB is unreachable (never throws).
+- Saving the global calls `revalidateTag('site-settings', { expire: 0 })` + `revalidatePath('/', 'layout')`,
+  so the static pages update on the next visit, no redeploy.
+- Every page/component now uses `getSiteSettings()`; Header (client) and Logo get values as props.
+  `site.ts` now holds types, defaults, `withDerived()` (tel link, full address, license labels), and `nav`.
+- License stored as raw values (number, pharmacist name); the code adds "IL Pharmacy License #" and
+  "Pharmacist-in-charge:".
+- Migration `20261005_220716_site_settings` (tables `site_settings`, `site_settings_hours`).
+- **Migrations moved to the build:** `prodMigrations` made `next build` hang locally (Payload asks an
+  interactive question when the DB was created by dev push). Now Netlify runs `pnpm run ci`
+  (= `payload migrate && pnpm build`). Note `pnpm ci` is a reserved pnpm command; use `pnpm run ci`.
+- CLAUDE.md conventions updated (settings, migrations). `next dev` adds a Next.js agent-rules block to
+  CLAUDE.md; it's committed on purpose.
+
+**Verified**
+- typecheck + `pnpm build` pass; pages still prerender as static.
+- Dev **and** a local production build (`pnpm start`): edited phone + license number via the API with a
+  temporary admin → home, Contact, About showed the new values (incl. `tel:` link) without a rebuild;
+  restored the defaults; temp admin deleted. Local `users` table is empty again.
+
+**Next**
+- Phase 3: shop + pay-by-email orders.
+
+---
+
 ## 2026-10-05 — Session 3b: Neon connected to the live preview
 
 **Done**
@@ -12,7 +43,7 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 - Netlify env var `DATABASE_URL` = Neon string (set by the user). Local `.env` has `NEON_DATABASE_URL`
   (the Neon string) next to the local `DATABASE_URL`; documented in `.env.example`.
 - First migration `src/migrations/20261005_172544_initial.ts` (all current tables), applied to Neon.
-- `prodMigrations` in `payload.config.ts`: the live site applies pending migrations on startup.
+- ~~`prodMigrations` (apply migrations on startup)~~ replaced in Session 4 by a build step; see below.
   **Rule from now on:** after changing collections or globals, run
   `pnpm payload migrate:create <name>` and commit the migration files. Dev still uses schema push.
 

@@ -26,7 +26,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [ ] Contact form: email the admin on each new message (do with Resend in Phase 3)
 - [x] FAQ page (accordion; insurance, transfers, delivery, ordering, payment)
 - [x] Custom 404 page
-- [ ] Move business details from `src/lib/site.ts` into a Payload **Site Settings** global so the client can edit them
+- [x] Move business details from `src/lib/site.ts` into a Payload **Site Settings** global so the client can edit them
 
 ## Phase 3 — Shop + pay-by-email orders
 - [ ] Collections: `products` (name, slug, description, price, images, category, stock, `isOTC` must be true,
