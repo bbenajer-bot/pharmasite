@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    orders: Order;
     products: Product;
     categories: Category;
     users: User;
@@ -79,6 +80,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -95,9 +97,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'shop-settings': ShopSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'shop-settings': ShopSettingsSelect<false> | ShopSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -126,6 +130,59 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * Customers pay outside the site. Send payment instructions, then mark the order Paid, then Shipped.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  items: {
+    name: string;
+    unitPrice: number;
+    quantity: number;
+    lineTotal: number;
+    product?: (number | null) | Product;
+    sku?: string | null;
+    id?: string | null;
+  }[];
+  subtotal: number;
+  fulfillmentFee: number;
+  /**
+   * Before any sales tax added on the invoice.
+   */
+  total: number;
+  customerNote?: string | null;
+  customerName: string;
+  email: string;
+  phone: string;
+  fulfillment: 'pickup' | 'local-delivery' | 'shipping';
+  address?: {
+    line1?: string | null;
+    line2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zip?: string | null;
+  };
+  trackingInfo?: string | null;
+  paymentInstructionsSentAt?: string | null;
+  reminderSentAt?: string | null;
+  paidAt?: string | null;
+  shippedAt?: string | null;
+  cancelledAt?: string | null;
+  cancelReason?: string | null;
+  orderNumber?: number | null;
+  status: 'awaiting-payment' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
+  paymentMethod: 'paypal' | 'venmo' | 'cashapp' | 'zelle' | 'applepay' | 'invoice';
+  /**
+   * Only visible to staff.
+   */
+  adminNotes?: string | null;
+  accessToken?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Over-the-counter products only. Prescription medicines must never be listed here.
@@ -287,6 +344,10 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'orders';
+        value: number | Order;
+      } | null)
+    | ({
         relationTo: 'products';
         value: number | Product;
       } | null)
@@ -347,6 +408,54 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        name?: T;
+        unitPrice?: T;
+        quantity?: T;
+        lineTotal?: T;
+        product?: T;
+        sku?: T;
+        id?: T;
+      };
+  subtotal?: T;
+  fulfillmentFee?: T;
+  total?: T;
+  customerNote?: T;
+  customerName?: T;
+  email?: T;
+  phone?: T;
+  fulfillment?: T;
+  address?:
+    | T
+    | {
+        line1?: T;
+        line2?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+      };
+  trackingInfo?: T;
+  paymentInstructionsSentAt?: T;
+  reminderSentAt?: T;
+  paidAt?: T;
+  shippedAt?: T;
+  cancelledAt?: T;
+  cancelReason?: T;
+  orderNumber?: T;
+  status?: T;
+  paymentMethod?: T;
+  adminNotes?: T;
+  accessToken?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -536,6 +645,65 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
+ * Delivery options, fees and payment instructions for online orders.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-settings".
+ */
+export interface ShopSetting {
+  id: number;
+  pickup?: {
+    enabled?: boolean | null;
+  };
+  /**
+   * The delivery area is set in Site Settings.
+   */
+  localDelivery: {
+    enabled?: boolean | null;
+    fee: number;
+  };
+  shipping: {
+    enabled?: boolean | null;
+    fee: number;
+    /**
+     * Leave empty for no free shipping.
+     */
+    freeOver?: number | null;
+  };
+  payment: {
+    paypal: {
+      enabled?: boolean | null;
+      instructions: string;
+    };
+    venmo: {
+      enabled?: boolean | null;
+      instructions: string;
+    };
+    cashapp: {
+      enabled?: boolean | null;
+      instructions: string;
+    };
+    zelle: {
+      enabled?: boolean | null;
+      instructions: string;
+    };
+    applepay: {
+      enabled?: boolean | null;
+      instructions: string;
+    };
+    invoice: {
+      enabled?: boolean | null;
+      instructions: string;
+    };
+  };
+  /**
+   * Leave empty to use the pharmacy email from Site Settings.
+   */
+  notifyEmail?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -572,6 +740,74 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         name?: T;
         title?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-settings_select".
+ */
+export interface ShopSettingsSelect<T extends boolean = true> {
+  pickup?:
+    | T
+    | {
+        enabled?: T;
+      };
+  localDelivery?:
+    | T
+    | {
+        enabled?: T;
+        fee?: T;
+      };
+  shipping?:
+    | T
+    | {
+        enabled?: T;
+        fee?: T;
+        freeOver?: T;
+      };
+  payment?:
+    | T
+    | {
+        paypal?:
+          | T
+          | {
+              enabled?: T;
+              instructions?: T;
+            };
+        venmo?:
+          | T
+          | {
+              enabled?: T;
+              instructions?: T;
+            };
+        cashapp?:
+          | T
+          | {
+              enabled?: T;
+              instructions?: T;
+            };
+        zelle?:
+          | T
+          | {
+              enabled?: T;
+              instructions?: T;
+            };
+        applepay?:
+          | T
+          | {
+              enabled?: T;
+              instructions?: T;
+            };
+        invoice?:
+          | T
+          | {
+              enabled?: T;
+              instructions?: T;
+            };
+      };
+  notifyEmail?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

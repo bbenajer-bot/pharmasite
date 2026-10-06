@@ -10,7 +10,9 @@ import { Media } from './collections/Media'
 import { ContactMessages } from './collections/ContactMessages'
 import { Products } from './collections/Products'
 import { Categories } from './collections/Categories'
+import { Orders } from './collections/Orders'
 import { SiteSettings } from './globals/SiteSettings'
+import { ShopSettings } from './globals/ShopSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -25,8 +27,8 @@ export default buildConfig({
       titleSuffix: ' — Pharmacy Admin',
     },
   },
-  collections: [Products, Categories, Users, Media, ContactMessages],
-  globals: [SiteSettings],
+  collections: [Orders, Products, Categories, Users, Media, ContactMessages],
+  globals: [SiteSettings, ShopSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

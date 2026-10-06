@@ -33,10 +33,11 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
       featured flag), `categories`
 - [x] Shop page (grid, category filter, search), product detail page
 - [x] Cart (client-side, persisted in localStorage), cart page
-- [ ] Checkout form: contact, shipping/pickup, preferred payment method
-- [ ] `orders` collection: items snapshot, totals, status
+- [x] Checkout form: contact, shipping/pickup, preferred payment method
+- [x] `orders` collection: items snapshot, totals, status
       (`awaiting-payment` → `paid` → `shipped` → `delivered` / `cancelled`), order number
-- [ ] Global **Payment Instructions**: text per payment method (PayPal, Venmo, Cash App, Zelle, Apple Pay, invoice)
+- [x] Global **Payment Instructions**: text per payment method (PayPal, Venmo, Cash App, Zelle, Apple Pay, invoice)
+      — built as the "Payment methods" tab of the **Shop Settings** global (also holds delivery options/fees)
 - [ ] Resend integration: new-order email to admin, order-received email to customer
 - [ ] Admin button "Send payment instructions" + status-change emails to customer
 - [ ] Scheduled job: reminder at 48h unpaid, auto-cancel at 7 days (Netlify scheduled function)

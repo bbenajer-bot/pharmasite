@@ -1,6 +1,9 @@
 import { useSyncExternalStore } from 'react'
 
 import { toCents } from '@/lib/money'
+import { MAX_PER_LINE } from '@/lib/shop'
+
+export { MAX_PER_LINE }
 
 /**
  * Shopping cart kept in the visitor's browser (localStorage), shared across tabs.
@@ -19,7 +22,6 @@ export type CartItem = {
 }
 
 const KEY = 'pharmacy-cart-v1'
-export const MAX_PER_LINE = 10
 
 const EMPTY: CartItem[] = []
 let cache: CartItem[] | null = null
