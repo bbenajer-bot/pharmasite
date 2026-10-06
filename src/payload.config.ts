@@ -8,6 +8,8 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { ContactMessages } from './collections/ContactMessages'
+import { Products } from './collections/Products'
+import { Categories } from './collections/Categories'
 import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
@@ -23,7 +25,7 @@ export default buildConfig({
       titleSuffix: ' — Pharmacy Admin',
     },
   },
-  collections: [Users, Media, ContactMessages],
+  collections: [Products, Categories, Users, Media, ContactMessages],
   globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

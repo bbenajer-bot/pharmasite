@@ -1,5 +1,6 @@
-import * as migration_20261005_172544_initial from './20261005_172544_initial'
-import * as migration_20261005_220716_site_settings from './20261005_220716_site_settings'
+import * as migration_20261005_172544_initial from './20261005_172544_initial';
+import * as migration_20261005_220716_site_settings from './20261005_220716_site_settings';
+import * as migration_20261006_045506_products_categories from './20261006_045506_products_categories';
 
 export const migrations = [
   {
@@ -12,4 +13,9 @@ export const migrations = [
     down: migration_20261005_220716_site_settings.down,
     name: '20261005_220716_site_settings',
   },
-]
+  {
+    up: migration_20261006_045506_products_categories.up,
+    down: migration_20261006_045506_products_categories.down,
+    name: '20261006_045506_products_categories'
+  },
+];

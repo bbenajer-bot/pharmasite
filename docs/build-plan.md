@@ -29,7 +29,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Move business details from `src/lib/site.ts` into a Payload **Site Settings** global so the client can edit them
 
 ## Phase 3 — Shop + pay-by-email orders
-- [ ] Collections: `products` (name, slug, description, price, images, category, stock, `isOTC` must be true,
+- [x] Collections: `products` (name, slug, description, price, images, category, stock, `isOTC` must be true,
       featured flag), `categories`
 - [ ] Shop page (grid, category filter, search), product detail page
 - [ ] Cart (client-side, persisted in localStorage), cart page

@@ -67,6 +67,8 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    products: Product;
+    categories: Category;
     users: User;
     media: Media;
     'contact-messages': ContactMessage;
@@ -77,6 +79,8 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'contact-messages': ContactMessagesSelect<false> | ContactMessagesSelect<true>;
@@ -124,6 +128,99 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Over-the-counter products only. Prescription medicines must never be listed here.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: number;
+  name: string;
+  /**
+   * Optional, e.g. Tylenol, Nature Made.
+   */
+  brand?: string | null;
+  /**
+   * One or two sentences shown on product cards.
+   */
+  summary: string;
+  /**
+   * Full description, directions and warnings as printed on the label. No medical claims beyond the label.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * The first image is used on product cards.
+   */
+  images?: (number | Media)[] | null;
+  price: number;
+  /**
+   * 0 shows "Out of stock".
+   */
+  stock: number;
+  sku?: string | null;
+  /**
+   * Part of the page address. Leave empty to fill in from the name. Changing it later breaks old links.
+   */
+  slug: string;
+  status: 'active' | 'hidden';
+  isOTC: boolean;
+  category?: (number | null) | Category;
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
+  /**
+   * Part of the page address. Leave empty to fill in from the name. Changing it later breaks old links.
+   */
+  slug: string;
+  /**
+   * Lower numbers appear first in the shop filter.
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -148,25 +245,6 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * Messages sent through the website contact form.
@@ -208,6 +286,14 @@ export interface PayloadKv {
 export interface PayloadLockedDocument {
   id: number;
   document?:
+    | ({
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
     | ({
         relationTo: 'users';
         value: number | User;
@@ -261,6 +347,38 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  name?: T;
+  brand?: T;
+  summary?: T;
+  description?: T;
+  images?: T;
+  price?: T;
+  stock?: T;
+  sku?: T;
+  slug?: T;
+  status?: T;
+  isOTC?: T;
+  category?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
