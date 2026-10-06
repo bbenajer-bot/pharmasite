@@ -32,7 +32,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Collections: `products` (name, slug, description, price, images, category, stock, `isOTC` must be true,
       featured flag), `categories`
 - [x] Shop page (grid, category filter, search), product detail page
-- [ ] Cart (client-side, persisted in localStorage), cart page
+- [x] Cart (client-side, persisted in localStorage), cart page
 - [ ] Checkout form: contact, shipping/pickup, preferred payment method
 - [ ] `orders` collection: items snapshot, totals, status
       (`awaiting-payment` → `paid` → `shipped` → `delivered` / `cancelled`), order number

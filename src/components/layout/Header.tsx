@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Menu, Phone, ShoppingBag, X } from 'lucide-react'
 
+import { useCart } from '@/components/shop/cart-store'
 import { nav } from '@/lib/site'
 import { Logo } from './Logo'
 
@@ -12,6 +13,7 @@ import { Logo } from './Logo'
 export function Header({ site }: { site: { name: string; phone: string; phoneHref: string } }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const { count: cartCount } = useCart()
 
   // Close the mobile menu whenever the route changes.
   useEffect(() => setOpen(false), [pathname])
@@ -55,9 +57,17 @@ export function Header({ site }: { site: { name: string; phone: string; phoneHre
           <Link
             href="/cart"
             className="relative rounded-full p-2 text-ink-soft hover:bg-brand-50 hover:text-ink"
-            aria-label="Cart"
+            aria-label={cartCount ? `Cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}` : 'Cart'}
           >
             <ShoppingBag className="size-5" aria-hidden />
+            {cartCount > 0 && (
+              <span
+                aria-hidden
+                className="absolute -top-0.5 -right-0.5 flex min-w-5 items-center justify-center rounded-full bg-brand-600 px-1 text-xs font-semibold text-white"
+              >
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
           </Link>
           <Link href="/prescriptions" className="btn btn-primary hidden sm:inline-flex">
             Request a prescription

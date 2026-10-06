@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import { ChevronRight, Info, Phone } from 'lucide-react'
 
+import { AddToCart } from '@/components/shop/AddToCart'
 import { ProductPhoto } from '@/components/shop/ProductCard'
 import { formatUSD } from '@/lib/money'
 import { getAllProductSlugs, getProductBySlug } from '@/lib/products'
@@ -85,7 +86,17 @@ export default async function ProductPage({ params }: Props) {
 
           <p className="mt-6 text-lg leading-relaxed text-ink-soft">{product.summary}</p>
 
-          {/* Add to cart goes here (cart item). */}
+          <AddToCart
+            stock={product.stock}
+            product={{
+              id: product.id,
+              slug: product.slug,
+              name: product.name,
+              price: product.price,
+              image: main?.url ?? null,
+              imageAlt: main?.alt ?? '',
+            }}
+          />
 
           <div className="mt-8 flex gap-3 rounded-xl border border-line bg-surface p-4 text-sm text-ink-soft">
             <Info className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden />
