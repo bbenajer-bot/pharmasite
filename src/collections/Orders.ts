@@ -18,7 +18,14 @@ export const Orders: CollectionConfig = {
   admin: {
     group: 'Shop',
     useAsTitle: 'orderNumber',
-    defaultColumns: ['orderNumber', 'customerName', 'total', 'paymentMethod', 'status', 'createdAt'],
+    defaultColumns: [
+      'orderNumber',
+      'customerName',
+      'total',
+      'paymentMethod',
+      'status',
+      'createdAt',
+    ],
     listSearchableFields: ['orderNumber', 'customerName', 'email'],
     description:
       'Customers pay outside the site. Send payment instructions, then mark the order Paid, then Shipped. The customer is emailed at each step.',
@@ -79,12 +86,19 @@ export const Orders: CollectionConfig = {
         if (operation !== 'create') return doc
         // Lazy import: the email module reads site settings, which import the Payload config.
         const { sendNewOrderToStaff, sendOrderReceived } = await import('@/lib/email/orders')
-        await Promise.all([sendNewOrderToStaff(req.payload, doc), sendOrderReceived(req.payload, doc)])
+        await Promise.all([
+          sendNewOrderToStaff(req.payload, doc),
+          sendOrderReceived(req.payload, doc),
+        ])
         return doc
       },
       async ({ doc, previousDoc, operation, req }) => {
         // Return reserved stock when an order is cancelled.
-        if (operation !== 'update' || doc.status !== 'cancelled' || previousDoc?.status === 'cancelled') {
+        if (
+          operation !== 'update' ||
+          doc.status !== 'cancelled' ||
+          previousDoc?.status === 'cancelled'
+        ) {
           return doc
         }
         for (const item of doc.items ?? []) {
@@ -131,13 +145,20 @@ export const Orders: CollectionConfig = {
         const instructions = shop.payment?.[order.paymentMethod]?.instructions?.trim()
         if (!instructions) {
           return Response.json(
-            { error: 'No instructions saved for this payment method. Add them in Settings → Shop Settings.' },
+            {
+              error:
+                'No instructions saved for this payment method. Add them in Settings → Shop Settings.',
+            },
             { status: 400 },
           )
         }
         const { sendPaymentInstructions } = await import('@/lib/email/orders')
         const ok = await sendPaymentInstructions(req.payload, order, instructions)
-        if (!ok) return Response.json({ error: 'The email could not be sent. Try again later.' }, { status: 502 })
+        if (!ok)
+          return Response.json(
+            { error: 'The email could not be sent. Try again later.' },
+            { status: 502 },
+          )
         const sentAt = new Date().toISOString()
         await req.payload.update({
           collection: 'orders',
@@ -199,7 +220,10 @@ export const Orders: CollectionConfig = {
                   name: 'total',
                   type: 'number',
                   required: true,
-                  admin: { readOnly: true, description: 'Before any sales tax added on the invoice.' },
+                  admin: {
+                    readOnly: true,
+                    description: 'Before any sales tax added on the invoice.',
+                  },
                 },
               ],
             },
@@ -232,7 +256,8 @@ export const Orders: CollectionConfig = {
               name: 'address',
               type: 'group',
               admin: {
-                condition: (data) => data?.fulfillment === 'local-delivery' || data?.fulfillment === 'shipping',
+                condition: (data) =>
+                  data?.fulfillment === 'local-delivery' || data?.fulfillment === 'shipping',
               },
               fields: [
                 { name: 'line1', label: 'Street address', type: 'text' },
@@ -256,16 +281,41 @@ export const Orders: CollectionConfig = {
             {
               type: 'row',
               fields: [
-                { name: 'paymentInstructionsSentAt', label: 'Payment instructions sent', type: 'date', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
-                { name: 'reminderSentAt', label: 'Payment reminder sent', type: 'date', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
+                {
+                  name: 'paymentInstructionsSentAt',
+                  label: 'Payment instructions sent',
+                  type: 'date',
+                  admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+                },
+                {
+                  name: 'reminderSentAt',
+                  label: 'Payment reminder sent',
+                  type: 'date',
+                  admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+                },
               ],
             },
             {
               type: 'row',
               fields: [
-                { name: 'paidAt', label: 'Paid', type: 'date', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
-                { name: 'shippedAt', label: 'Shipped / ready', type: 'date', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
-                { name: 'cancelledAt', label: 'Cancelled', type: 'date', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
+                {
+                  name: 'paidAt',
+                  label: 'Paid',
+                  type: 'date',
+                  admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+                },
+                {
+                  name: 'shippedAt',
+                  label: 'Shipped / ready',
+                  type: 'date',
+                  admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+                },
+                {
+                  name: 'cancelledAt',
+                  label: 'Cancelled',
+                  type: 'date',
+                  admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+                },
               ],
             },
             { name: 'cancelReason', label: 'Cancellation reason', type: 'text' },
