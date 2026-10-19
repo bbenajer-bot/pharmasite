@@ -45,10 +45,11 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Replace home page sample products with real `featured` products
 
 ## Phase 4 — Blog
-- [ ] Collections: `posts` (title, slug, excerpt, cover image, rich text body, category, author, publish date, status)
-- [ ] Blog index (pagination, category filter) and post page
-- [ ] Replace home page sample posts with latest posts
-- [ ] Draft 3–5 starter posts (client reviews for medical accuracy)
+- [x] Collections: `posts` (title, slug, excerpt, cover image, rich text body, category, author, publish date, status)
+- [x] Blog index (pagination, category filter) and post page
+- [x] Replace home page sample posts with latest posts
+- [x] Draft 3–5 starter posts (client reviews for medical accuracy) — 4 drafts via `pnpm seed:posts`;
+      **client:** review each in /admin → Blog posts, then set Status to Published
 
 ## Phase 5 — Prescription requests
 - [ ] `prescription-requests` collection: name, DOB, phone, email, medication requested, reason/symptoms,

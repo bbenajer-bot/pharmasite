@@ -70,6 +70,8 @@ export interface Config {
     orders: Order;
     products: Product;
     categories: Category;
+    posts: Post;
+    'blog-categories': BlogCategory;
     users: User;
     media: Media;
     'contact-messages': ContactMessage;
@@ -83,6 +85,8 @@ export interface Config {
     orders: OrdersSelect<false> | OrdersSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
+    'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'contact-messages': ContactMessagesSelect<false> | ContactMessagesSelect<true>;
@@ -279,6 +283,73 @@ export interface Category {
   createdAt: string;
 }
 /**
+ * General health information only, no personal medical advice. Have the doctor check medical content before publishing.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  /**
+   * One or two sentences shown on blog cards and in Google search results.
+   */
+  excerpt: string;
+  /**
+   * Optional. Wide images (about 1600 × 900) look best.
+   */
+  coverImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Part of the page address. Leave empty to fill in from the title. Changing it later breaks old links.
+   */
+  slug: string;
+  status: 'draft' | 'published';
+  /**
+   * Shown on the post. Filled in automatically when you first publish.
+   */
+  publishedAt?: string | null;
+  category?: (number | null) | BlogCategory;
+  /**
+   * Name shown on the post, e.g. "Dr. Alex Morgan" or "Our pharmacy team".
+   */
+  author: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories".
+ */
+export interface BlogCategory {
+  id: number;
+  name: string;
+  /**
+   * Part of the page address. Leave empty to fill in from the name. Changing it later breaks old links.
+   */
+  slug: string;
+  /**
+   * Lower numbers appear first in the blog filter.
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -355,6 +426,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categories';
         value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'blog-categories';
+        value: number | BlogCategory;
       } | null)
     | ({
         relationTo: 'users';
@@ -484,6 +563,34 @@ export interface ProductsSelect<T extends boolean = true> {
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  excerpt?: T;
+  coverImage?: T;
+  content?: T;
+  slug?: T;
+  status?: T;
+  publishedAt?: T;
+  category?: T;
+  author?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories_select".
+ */
+export interface BlogCategoriesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   order?: T;

@@ -16,7 +16,6 @@ const upcoming: Record<string, { title: string; blurb: string }> = {
     title: 'Prescription requests',
     blurb: 'Request a prescription online and have it reviewed by our doctor.',
   },
-  blog: { title: 'Blog', blurb: 'Health tips and medication advice from our pharmacists.' },
   privacy: { title: 'Privacy Policy', blurb: 'How we collect, use, and protect your information.' },
   'hipaa-notice': {
     title: 'Notice of Privacy Practices',

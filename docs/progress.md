@@ -4,6 +4,45 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-19 — Session 6: Phase 4 blog
+
+**Done**
+- Home page shows real featured products (Phase 3 finished; see Session 5).
+- `posts` collection (admin group **Blog**): title, excerpt (≤220, used as meta description), optional
+  cover image, rich-text content, slug, status **draft/published** (default draft), publish date (set
+  automatically on first publish), category, author (plain text, e.g. "Our pharmacy team"; Users only
+  have an email). Visitors can read published posts only (access rule + `overrideAccess: false`).
+- `blog-categories` collection (name, slug, order). The blog filter only lists topics with a published post.
+- `src/lib/posts.ts` (cached, tag `posts`; saves/deletes revalidate `/`, `/blog`, `/blog/<slug>`, and the
+  old slug on rename). `formatPostDate` uses Chicago time.
+- `/blog`: topic pills, 9 per page, Newer/Older pagination, empty state. `/blog/[slug]`: breadcrumb,
+  h1, author + date, cover, rich text, "general information, not medical advice … call 911" box,
+  "More articles"; OG type `article`. Removed `blog` from the coming-soon list.
+- Home `BlogTeaser`: 3 latest published posts; hidden when there are none (no more sample posts).
+- Starter content: `pnpm seed:posts` (`src/scripts/seed-posts.ts`) creates 3 categories and 4 **draft**
+  posts (prescription label, storing/disposing medicines, choosing an OTC pain reliever, flu vaccine).
+  Skips anything that already exists. Wording sticks to label/CDC/FDA guidance and makes no claims about
+  which services the pharmacy offers (the flu post says "call us to check vaccine availability").
+- Migration `20261019_195808_blog`.
+
+**Verified**
+- typecheck + `pnpm build` pass. Seed run twice (second run creates nothing).
+- As drafts: `/blog` shows "coming soon", post URL 404, public API returns 0, no home blog section.
+- Published via API with a temp admin: publish date filled in; index, topic filter, post page (headings,
+  lists, bold, date, disclaimer, more articles, metadata), home teaser all correct; one h1 per page.
+  Screenshots at 1280px and 500px (headless Chrome can't go narrower) show no overflow.
+  Then set back to draft (post 404 again right away) and the temp admin deleted. Local posts are drafts.
+
+**User/client action**
+- Load the drafts on the live preview: `DATABASE_URL='<Neon URL from .env NEON_DATABASE_URL>' pnpm seed:posts`
+  (after Netlify has deployed this commit, which creates the tables).
+- Client (doctor) reviews each draft for medical accuracy, edits the author name if wanted, then publishes.
+
+**Next**
+- Phase 5: prescription requests.
+
+---
+
 ## 2026-10-19 — Session 5: Phase 3 shop + order emails (in progress)
 
 **Done (commits dab6048 → this one)**

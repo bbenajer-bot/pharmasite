@@ -12,6 +12,8 @@ import { ContactMessages } from './collections/ContactMessages'
 import { Products } from './collections/Products'
 import { Categories } from './collections/Categories'
 import { Orders } from './collections/Orders'
+import { Posts } from './collections/Posts'
+import { BlogCategories } from './collections/BlogCategories'
 import { SiteSettings } from './globals/SiteSettings'
 import { ShopSettings } from './globals/ShopSettings'
 import { cronMaintenance } from './endpoints/cron'
@@ -29,7 +31,16 @@ export default buildConfig({
       titleSuffix: ' — Pharmacy Admin',
     },
   },
-  collections: [Orders, Products, Categories, Users, Media, ContactMessages],
+  collections: [
+    Orders,
+    Products,
+    Categories,
+    Posts,
+    BlogCategories,
+    Users,
+    Media,
+    ContactMessages,
+  ],
   globals: [SiteSettings, ShopSettings],
   endpoints: [cronMaintenance],
   editor: lexicalEditor(),

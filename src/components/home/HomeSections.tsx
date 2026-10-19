@@ -11,7 +11,9 @@ import {
   Stethoscope,
 } from 'lucide-react'
 
+import { PostCard } from '@/components/blog/PostCard'
 import { ProductCard } from '@/components/shop/ProductCard'
+import { getLatestPosts, type PostSummary } from '@/lib/posts'
 import { getFeaturedProducts, type ProductSummary } from '@/lib/products'
 import { getServices } from '@/lib/services'
 import { getSiteSettings } from '@/lib/settings'
@@ -319,28 +321,18 @@ export async function AboutTeaser() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Blog teaser (static samples until the blog is built)                */
+/* Blog teaser                                                         */
 /* ------------------------------------------------------------------ */
 
-const samplePosts = [
-  {
-    title: 'How to read your prescription label',
-    excerpt: 'Dosage, refills, warnings: a quick guide to the small print on your bottle.',
-    tag: 'Medication tips',
-  },
-  {
-    title: 'Flu shot season: what to know this year',
-    excerpt: 'Who should get vaccinated, when to do it, and what to expect afterward.',
-    tag: 'Vaccines',
-  },
-  {
-    title: 'Storing medications safely at home',
-    excerpt: 'Why the bathroom cabinet is the wrong place, and how to dispose of old meds.',
-    tag: 'Safety',
-  },
-]
+export async function BlogTeaser() {
+  let posts: PostSummary[] = []
+  try {
+    posts = await getLatestPosts(3)
+  } catch (err) {
+    console.error('Home: could not load blog posts', err)
+  }
+  if (posts.length === 0) return null
 
-export function BlogTeaser() {
   return (
     <section className="py-20" aria-labelledby="blog-heading">
       <div className="container-page">
@@ -348,7 +340,7 @@ export function BlogTeaser() {
           <div>
             <p className="eyebrow">Health library</p>
             <h2 id="blog-heading" className="mt-3 text-3xl font-bold sm:text-4xl">
-              Advice from our pharmacists
+              Advice from our pharmacy team
             </h2>
           </div>
           <Link
@@ -359,23 +351,9 @@ export function BlogTeaser() {
           </Link>
         </div>
         <ul className="mt-10 grid gap-6 md:grid-cols-3">
-          {samplePosts.map((post) => (
-            <li key={post.title}>
-              <Link
-                href="/blog"
-                className="group flex h-full flex-col rounded-2xl border border-line p-6 transition-shadow hover:shadow-lg hover:shadow-brand-900/5"
-              >
-                <span className="w-fit rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
-                  {post.tag}
-                </span>
-                <h3 className="mt-4 text-lg font-semibold group-hover:text-brand-600">
-                  {post.title}
-                </h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">{post.excerpt}</p>
-                <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-brand-600">
-                  Read more <ArrowRight className="size-4" aria-hidden />
-                </span>
-              </Link>
+          {posts.map((post) => (
+            <li key={post.id}>
+              <PostCard post={post} />
             </li>
           ))}
         </ul>
