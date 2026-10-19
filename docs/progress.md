@@ -57,8 +57,12 @@ then redeploy. Until then the function logs "URL or CRON_SECRET is not set" and 
     added); products still import, with an "image could not be saved" note. Import images after R2,
     or run the import locally against Neon.
 
+- **Home page featured products** now come from the shop: up to 4 products ticked "Featured"
+  (sorted by name); if none are ticked, the 4 newest; if the shop is empty (or the DB is unreachable
+  during a build) the section is hidden. Uses the shop's `ProductCard`. Phase 3 complete.
+
 **Next**
-- Replace home page sample products with real `featured` products.
+- Phase 4: Blog.
 
 ---
 

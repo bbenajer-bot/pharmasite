@@ -11,6 +11,8 @@ import {
   Stethoscope,
 } from 'lucide-react'
 
+import { ProductCard } from '@/components/shop/ProductCard'
+import { getFeaturedProducts, type ProductSummary } from '@/lib/products'
 import { getServices } from '@/lib/services'
 import { getSiteSettings } from '@/lib/settings'
 
@@ -224,37 +226,19 @@ export function HowItWorks() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Featured products (static samples until the shop is built)          */
+/* Featured products                                                   */
 /* ------------------------------------------------------------------ */
 
-const sampleProducts = [
-  {
-    name: 'Daily Multivitamin',
-    category: 'Vitamins',
-    price: '$14.99',
-    tint: 'from-brand-100 to-brand-50',
-  },
-  {
-    name: 'Vitamin D3 2000 IU',
-    category: 'Vitamins',
-    price: '$9.49',
-    tint: 'from-amber-100 to-amber-50',
-  },
-  {
-    name: 'Digital Thermometer',
-    category: 'Health devices',
-    price: '$12.99',
-    tint: 'from-mint-50 to-white',
-  },
-  {
-    name: 'Home First Aid Kit',
-    category: 'First aid',
-    price: '$24.99',
-    tint: 'from-rose-100 to-rose-50',
-  },
-]
+export async function FeaturedProducts() {
+  let products: ProductSummary[] = []
+  try {
+    products = await getFeaturedProducts(4)
+  } catch (err) {
+    // The home page must still render (and build) when the database is unreachable.
+    console.error('Home: could not load featured products', err)
+  }
+  if (products.length === 0) return null
 
-export function FeaturedProducts() {
   return (
     <section className="py-20" aria-labelledby="products-heading">
       <div className="container-page">
@@ -273,23 +257,9 @@ export function FeaturedProducts() {
           </Link>
         </div>
         <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {sampleProducts.map((p) => (
-            <li key={p.name}>
-              <Link href="/shop" className="group block">
-                <div
-                  className={`flex aspect-square items-center justify-center rounded-2xl bg-gradient-to-br ${p.tint}`}
-                >
-                  <Package
-                    className="size-14 text-ink/20 transition-transform group-hover:scale-110"
-                    aria-hidden
-                  />
-                </div>
-                <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted">
-                  {p.category}
-                </p>
-                <h3 className="mt-1 font-semibold group-hover:text-brand-600">{p.name}</h3>
-                <p className="mt-1 font-semibold text-ink-soft">{p.price}</p>
-              </Link>
+          {products.map((p) => (
+            <li key={p.id}>
+              <ProductCard product={p} />
             </li>
           ))}
         </ul>

@@ -130,7 +130,18 @@ export const getFeaturedProducts = unstable_cache(
       depth: 1,
       overrideAccess: false,
     })
-    return res.docs.map(toSummary)
+    if (res.docs.length > 0) return res.docs.map(toSummary)
+
+    // Nothing marked "featured" yet: show the newest products instead.
+    const newest = await payload.find({
+      collection: 'products',
+      where: publicProductsWhere,
+      sort: '-createdAt',
+      limit,
+      depth: 1,
+      overrideAccess: false,
+    })
+    return newest.docs.map(toSummary)
   },
   ['featured-products'],
   opts,
