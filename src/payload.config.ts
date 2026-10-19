@@ -14,6 +14,7 @@ import { Categories } from './collections/Categories'
 import { Orders } from './collections/Orders'
 import { Posts } from './collections/Posts'
 import { BlogCategories } from './collections/BlogCategories'
+import { PrescriptionRequests } from './collections/PrescriptionRequests'
 import { SiteSettings } from './globals/SiteSettings'
 import { ShopSettings } from './globals/ShopSettings'
 import { cronMaintenance } from './endpoints/cron'
@@ -32,6 +33,7 @@ export default buildConfig({
     },
   },
   collections: [
+    PrescriptionRequests,
     Orders,
     Products,
     Categories,

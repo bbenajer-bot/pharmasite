@@ -1,13 +1,20 @@
 import type { Payload } from 'payload'
 
+import { REQUEST_RETENTION_DAYS } from '@/lib/prescriptions'
 import { PAYMENT_CANCEL_DAYS, PAYMENT_REMINDER_HOURS } from '@/lib/shop'
 
 const HOUR = 60 * 60 * 1000
 
-export type MaintenanceResult = { remindersSent: number; ordersCancelled: number; failures: number }
+export type MaintenanceResult = {
+  remindersSent: number
+  ordersCancelled: number
+  requestsDeleted: number
+  failures: number
+}
 
 /**
- * Housekeeping run by the Netlify scheduled function (see netlify/functions/maintenance.ts).
+ * Housekeeping run by the Netlify scheduled function (see netlify/functions/maintenance.ts):
+ * payment reminders, cancelling unpaid orders, and deleting old prescription requests.
  * Safe to run any number of times: each order gets at most one reminder and one cancellation.
  *
  * Orders whose payment instructions were never sent are left alone: the customer couldn't pay yet,
@@ -17,7 +24,28 @@ export async function runMaintenance(
   payload: Payload,
   now = new Date(),
 ): Promise<MaintenanceResult> {
-  const result: MaintenanceResult = { remindersSent: 0, ordersCancelled: 0, failures: 0 }
+  const result: MaintenanceResult = {
+    remindersSent: 0,
+    ordersCancelled: 0,
+    requestsDeleted: 0,
+    failures: 0,
+  }
+
+  // 0. Delete prescription and refill requests older than REQUEST_RETENTION_DAYS (health information
+  // shouldn't sit on the website longer than needed). First, so an order problem can't skip it.
+  const deleteBefore = new Date(now.getTime() - REQUEST_RETENTION_DAYS * 24 * HOUR).toISOString()
+  try {
+    const deleted = await payload.delete({
+      collection: 'prescription-requests',
+      where: { createdAt: { less_than: deleteBefore } },
+      depth: 0,
+    })
+    result.requestsDeleted = deleted.docs.length
+    result.failures += deleted.errors.length
+  } catch (err) {
+    result.failures++
+    payload.logger.error({ err }, 'Maintenance: could not delete old prescription requests')
+  }
 
   // 1. Cancel unpaid orders placed more than PAYMENT_CANCEL_DAYS ago (returns stock, emails the customer).
   const cancelBefore = new Date(now.getTime() - PAYMENT_CANCEL_DAYS * 24 * HOUR).toISOString()

@@ -52,13 +52,13 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
       **client:** review each in /admin → Blog posts, then set Status to Published
 
 ## Phase 5 — Prescription requests
-- [ ] `prescription-requests` collection: name, DOB, phone, email, medication requested, reason/symptoms,
+- [x] `prescription-requests` collection: name, DOB, phone, email, medication requested, reason/symptoms,
       current meds, allergies, pickup/delivery, consent; status (new → reviewed → approved / declined); doctor notes
-- [ ] Access control: only logged-in admins can read; public can only create
-- [ ] Form page with consent checkbox and "Not for emergencies — call 911" banner, success page
-- [ ] Notification email to doctor with **no health details**, only request # + admin link
-- [ ] Auto-delete requests older than 90 days (scheduled function)
-- [ ] Refill request form (simpler: name, DOB, phone, Rx number) — same handling
+- [x] Access control: only logged-in admins can read; public can only create
+- [x] Form page with consent checkbox and "Not for emergencies — call 911" banner, success page
+- [x] Notification email to doctor with **no health details**, only request # + admin link
+- [x] Auto-delete requests older than 90 days (scheduled function)
+- [x] Refill request form (simpler: name, DOB, phone, Rx number) — same handling
 - [ ] Booking: link to client's existing portal or Doxy.me (decision pending)
 
 ## Phase 6 — Legal, accessibility, SEO

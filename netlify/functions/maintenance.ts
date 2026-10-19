@@ -1,6 +1,6 @@
 /**
  * Netlify scheduled function (free plan): every 6 hours, ask the site to run its housekeeping
- * (payment reminders, cancelling unpaid orders). The work itself lives in src/lib/maintenance.ts;
+ * (payment reminders, cancelling unpaid orders, deleting old prescription requests). The work itself lives in src/lib/maintenance.ts;
  * this only calls the protected endpoint. Scheduled functions run on published deploys only.
  *
  * Needs the Netlify env var CRON_SECRET (same value the site uses). URL is set by Netlify.

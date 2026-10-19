@@ -4,6 +4,44 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-19 — Session 7: Phase 5 prescription requests
+
+**Done**
+- `prescription-requests` collection (admin group **Patients**): request # (from 1001), type
+  **new/refill**, status new → reviewed → approved / declined, staff-only doctor notes, patient (name,
+  DOB as `YYYY-MM-DD` text, phone, optional email), request (medication, reason/symptoms, current meds,
+  allergies; refills: Rx number + optional medication), pickup/delivery + address, consent timestamp.
+  All access is admin-only; the public never uses the API (the form's server action uses the local API).
+- `/prescriptions` (new request) and `/prescriptions/refill` (shorter form) share `RequestForm`:
+  red "Not for emergencies, call 911" banner, required consent checkbox (accurate info, OK to contact,
+  no guarantee, not for emergencies, link to /privacy), honeypot, field-level errors, pickup/delivery.
+  Success redirects to `/prescriptions/submitted?type=…&ref=N` (noindex). Removed `prescriptions`
+  from the coming-soon list.
+- Doctor email (`src/lib/email/prescriptions.ts`): subject "New prescription request #N" + admin link
+  only, no name or health details. Goes to Shop Settings → Notifications → "Send prescription and refill
+  request emails to" (new field), else the new-order address, else the pharmacy email.
+- Server action never logs submitted values (DB errors can echo them); only the error type.
+- Maintenance job now deletes requests older than 90 days first (`requestsDeleted` in the result).
+- Migration `20261019_205309_prescription_requests`.
+
+**Verified**
+- typecheck + `pnpm build` pass. Public REST read/create → 403.
+- Form posted without JS: invalid input shows every field error; valid new request and refill saved
+  (#1002, #1001) and redirect to the success page; honeypot saves nothing.
+- Email test: correct subject/link, no name/medication/DOB in subject, HTML or text.
+- Maintenance: a request backdated 91 days was deleted, one at 89 days kept.
+- Not checked in a real browser this session (DevTools browser profile was locked): do a visual check
+  of both forms at desktop and 375px next session.
+
+**Notes**
+- Two synthetic requests (#1001, #1002) are in the local DB to look at in /admin.
+- Patients aren't emailed when the status changes; staff call them. Add later if the client wants it.
+
+**Next**
+- Booking item (needs the client's decision: their EHR/pharmacy portal link or Doxy.me), then Phase 6.
+
+---
+
 ## 2026-10-19 — Session 6: Phase 4 blog
 
 **Done**

@@ -9,8 +9,10 @@ export const SHOP_SETTINGS_TAG = 'shop-settings'
 const defaultInstructions: Record<string, string> = {
   paypal:
     'Please send {total} with PayPal to TODO@example.com and put "Order #{orderNumber}" in the note.',
-  venmo: 'Please send {total} on Venmo to @TODO-pharmacy and put "Order #{orderNumber}" in the note.',
-  cashapp: 'Please send {total} on Cash App to $TODOpharmacy and put "Order #{orderNumber}" in the note.',
+  venmo:
+    'Please send {total} on Venmo to @TODO-pharmacy and put "Order #{orderNumber}" in the note.',
+  cashapp:
+    'Please send {total} on Cash App to $TODOpharmacy and put "Order #{orderNumber}" in the note.',
   zelle:
     'Please send {total} with Zelle to TODO@example.com (Meridian Pharmacy) and put "Order #{orderNumber}" in the memo.',
   applepay:
@@ -45,7 +47,8 @@ export const ShopSettings: GlobalConfig = {
   label: 'Shop Settings',
   admin: {
     group: 'Settings',
-    description: 'Delivery options, fees and payment instructions for online orders.',
+    description:
+      'Delivery options, fees and payment instructions for online orders, and where notification emails go.',
   },
   access: {
     read: ({ req }) => Boolean(req.user),
@@ -65,13 +68,21 @@ export const ShopSettings: GlobalConfig = {
       tabs: [
         {
           label: 'Delivery & fees',
-          description: 'Prices in US dollars. Sales tax is not added on the site; add it to the invoice.',
+          description:
+            'Prices in US dollars. Sales tax is not added on the site; add it to the invoice.',
           fields: [
             {
               name: 'pickup',
               type: 'group',
               label: 'Pick up at the pharmacy',
-              fields: [{ name: 'enabled', label: 'Offer pickup (free)', type: 'checkbox', defaultValue: true }],
+              fields: [
+                {
+                  name: 'enabled',
+                  label: 'Offer pickup (free)',
+                  type: 'checkbox',
+                  defaultValue: true,
+                },
+              ],
             },
             {
               name: 'localDelivery',
@@ -82,8 +93,21 @@ export const ShopSettings: GlobalConfig = {
                 {
                   type: 'row',
                   fields: [
-                    { name: 'enabled', label: 'Offer local delivery', type: 'checkbox', defaultValue: true },
-                    { name: 'fee', label: 'Fee', type: 'number', min: 0, required: true, defaultValue: 5, admin: { step: 0.01 } },
+                    {
+                      name: 'enabled',
+                      label: 'Offer local delivery',
+                      type: 'checkbox',
+                      defaultValue: true,
+                    },
+                    {
+                      name: 'fee',
+                      label: 'Fee',
+                      type: 'number',
+                      min: 0,
+                      required: true,
+                      defaultValue: 5,
+                      admin: { step: 0.01 },
+                    },
                   ],
                 },
               ],
@@ -96,8 +120,21 @@ export const ShopSettings: GlobalConfig = {
                 {
                   type: 'row',
                   fields: [
-                    { name: 'enabled', label: 'Offer shipping', type: 'checkbox', defaultValue: true },
-                    { name: 'fee', label: 'Fee', type: 'number', min: 0, required: true, defaultValue: 8.95, admin: { step: 0.01 } },
+                    {
+                      name: 'enabled',
+                      label: 'Offer shipping',
+                      type: 'checkbox',
+                      defaultValue: true,
+                    },
+                    {
+                      name: 'fee',
+                      label: 'Fee',
+                      type: 'number',
+                      min: 0,
+                      required: true,
+                      defaultValue: 8.95,
+                      admin: { step: 0.01 },
+                    },
                     {
                       name: 'freeOver',
                       label: 'Free shipping on orders over',
@@ -126,6 +163,15 @@ export const ShopSettings: GlobalConfig = {
               label: 'Send new-order emails to',
               type: 'email',
               admin: { description: 'Leave empty to use the pharmacy email from Site Settings.' },
+            },
+            {
+              name: 'prescriptionNotifyEmail',
+              label: 'Send prescription and refill request emails to',
+              type: 'email',
+              admin: {
+                description:
+                  'Usually the doctor. The email only says a request arrived, with a link to it; no health details. Leave empty to use the address above.',
+              },
             },
           ],
         },

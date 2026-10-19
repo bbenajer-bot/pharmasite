@@ -12,10 +12,6 @@ import { getSiteSettings } from '@/lib/settings'
  * catch-all that sends unknown URLs to the custom 404 (or replace it with app/global-not-found.tsx).
  */
 const upcoming: Record<string, { title: string; blurb: string }> = {
-  prescriptions: {
-    title: 'Prescription requests',
-    blurb: 'Request a prescription online and have it reviewed by our doctor.',
-  },
   privacy: { title: 'Privacy Policy', blurb: 'How we collect, use, and protect your information.' },
   'hipaa-notice': {
     title: 'Notice of Privacy Practices',

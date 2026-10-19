@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'prescription-requests': PrescriptionRequest;
     orders: Order;
     products: Product;
     categories: Category;
@@ -82,6 +83,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'prescription-requests': PrescriptionRequestsSelect<false> | PrescriptionRequestsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -134,6 +136,45 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * Requests from the website. The doctor decides on each one; contact the patient by phone or email. Requests are deleted automatically 90 days after they arrive.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "prescription-requests".
+ */
+export interface PrescriptionRequest {
+  id: number;
+  requestNumber?: number | null;
+  kind: 'new' | 'refill';
+  status: 'new' | 'reviewed' | 'approved' | 'declined';
+  /**
+   * For staff only. Never shown or sent to the patient.
+   */
+  doctorNotes?: string | null;
+  name: string;
+  /**
+   * YYYY-MM-DD
+   */
+  dateOfBirth: string;
+  phone: string;
+  email?: string | null;
+  rxNumber?: string | null;
+  /**
+   * For refills: optional, if the patient gave it.
+   */
+  medication?: string | null;
+  reason?: string | null;
+  currentMedications?: string | null;
+  allergies?: string | null;
+  fulfillment: 'pickup' | 'delivery';
+  deliveryAddress?: string | null;
+  /**
+   * When the patient ticked the consent box (accurate information, OK to contact them, not for emergencies).
+   */
+  consentAt: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Customers pay outside the site. Send payment instructions, then mark the order Paid, then Shipped. The customer is emailed at each step.
@@ -416,6 +457,10 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'prescription-requests';
+        value: number | PrescriptionRequest;
+      } | null)
+    | ({
         relationTo: 'orders';
         value: number | Order;
       } | null)
@@ -488,6 +533,30 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "prescription-requests_select".
+ */
+export interface PrescriptionRequestsSelect<T extends boolean = true> {
+  requestNumber?: T;
+  kind?: T;
+  status?: T;
+  doctorNotes?: T;
+  name?: T;
+  dateOfBirth?: T;
+  phone?: T;
+  email?: T;
+  rxNumber?: T;
+  medication?: T;
+  reason?: T;
+  currentMedications?: T;
+  allergies?: T;
+  fulfillment?: T;
+  deliveryAddress?: T;
+  consentAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -754,7 +823,7 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
- * Delivery options, fees and payment instructions for online orders.
+ * Delivery options, fees and payment instructions for online orders, and where notification emails go.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shop-settings".
@@ -809,6 +878,10 @@ export interface ShopSetting {
    * Leave empty to use the pharmacy email from Site Settings.
    */
   notifyEmail?: string | null;
+  /**
+   * Usually the doctor. The email only says a request arrived, with a link to it; no health details. Leave empty to use the address above.
+   */
+  prescriptionNotifyEmail?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -917,6 +990,7 @@ export interface ShopSettingsSelect<T extends boolean = true> {
             };
       };
   notifyEmail?: T;
+  prescriptionNotifyEmail?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
