@@ -13,7 +13,10 @@ export type MaintenanceResult = { remindersSent: number; ordersCancelled: number
  * Orders whose payment instructions were never sent are left alone: the customer couldn't pay yet,
  * so staff decide what to do with them.
  */
-export async function runMaintenance(payload: Payload, now = new Date()): Promise<MaintenanceResult> {
+export async function runMaintenance(
+  payload: Payload,
+  now = new Date(),
+): Promise<MaintenanceResult> {
   const result: MaintenanceResult = { remindersSent: 0, ordersCancelled: 0, failures: 0 }
 
   // 1. Cancel unpaid orders placed more than PAYMENT_CANCEL_DAYS ago (returns stock, emails the customer).

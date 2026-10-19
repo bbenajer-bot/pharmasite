@@ -11,6 +11,13 @@ export const Media: CollectionConfig = {
       type: 'text',
       required: true,
     },
+    {
+      // Where the product CSV import downloaded this image from, so a second import reuses it.
+      name: 'sourceUrl',
+      type: 'text',
+      index: true,
+      admin: { readOnly: true, condition: (data) => Boolean(data?.sourceUrl) },
+    },
   ],
   upload: true,
 }

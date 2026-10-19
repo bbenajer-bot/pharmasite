@@ -23,8 +23,94 @@ export const Products: CollectionConfig = {
     defaultColumns: ['name', 'category', 'price', 'stock', 'status', 'featured'],
     description:
       'Over-the-counter products only. Prescription medicines must never be listed here.',
+    components: {
+      beforeListTable: ['/components/admin/ProductImport#ProductImport'],
+    },
   },
   defaultSort: 'name',
+  endpoints: [
+    {
+      // Product CSV import, step 1: read the file and show what would happen. Changes nothing.
+      path: '/import/preview',
+      method: 'post',
+      handler: async (req) => {
+        if (!req.user) return Response.json({ error: 'Please log in.' }, { status: 401 })
+        const body = (await req.json?.().catch(() => null)) as { csv?: unknown } | null
+        if (typeof body?.csv !== 'string' || !body.csv.trim()) {
+          return Response.json({ error: 'The file is empty.' }, { status: 400 })
+        }
+        const { parseProductCsv } = await import('@/lib/product-import/parse')
+        const { slugify } = await import('@/fields/slug')
+        const { rows, fileError } = parseProductCsv(body.csv)
+        if (fileError) return Response.json({ error: fileError }, { status: 400 })
+
+        const current = await req.payload.find({
+          collection: 'products',
+          pagination: false,
+          depth: 0,
+          select: { sku: true, slug: true },
+          req,
+        })
+        const skus = new Set(current.docs.map((d) => d.sku).filter(Boolean))
+        const slugs = new Set(current.docs.map((d) => d.slug))
+        return Response.json({
+          rows: rows.map((r) => ({
+            ...r,
+            exists: r.product
+              ? r.product.sku
+                ? skus.has(r.product.sku)
+                : slugs.has(slugify(r.product.name))
+              : false,
+          })),
+        })
+      },
+    },
+    {
+      // Product CSV import, step 2: create or update one product (the admin screen sends them one by one).
+      path: '/import/commit',
+      method: 'post',
+      handler: async (req) => {
+        if (!req.user) return Response.json({ error: 'Please log in.' }, { status: 401 })
+        const body = (await req.json?.().catch(() => null)) as {
+          product?: Record<string, unknown>
+          existing?: unknown
+          defaultStock?: unknown
+          confirmOTC?: unknown
+        } | null
+        if (body?.confirmOTC !== true) {
+          return Response.json(
+            { error: 'Confirm that every product is over-the-counter.' },
+            { status: 400 },
+          )
+        }
+        const p = body.product
+        const valid =
+          p &&
+          typeof p.name === 'string' &&
+          typeof p.summary === 'string' &&
+          typeof p.price === 'number' &&
+          typeof p.descriptionHtml === 'string' &&
+          Array.isArray(p.imageUrls) &&
+          p.imageUrls.length <= 6 &&
+          p.imageUrls.every((u) => typeof u === 'string') &&
+          (p.status === 'active' || p.status === 'hidden')
+        if (!valid) return Response.json({ error: 'Invalid product data.' }, { status: 400 })
+
+        const { importProduct } = await import('@/lib/product-import/commit')
+        try {
+          const outcome = await importProduct(req, p as unknown as Parameters<typeof importProduct>[1], {
+            existing: body.existing === 'update' ? 'update' : 'skip',
+            defaultStock: Math.max(0, Math.floor(Number(body.defaultStock) || 0)),
+          })
+          return Response.json(outcome)
+        } catch (err) {
+          req.payload.logger.error({ err, name: p.name }, 'Product import failed')
+          const message = err instanceof Error ? err.message : 'Could not save this product.'
+          return Response.json({ error: message }, { status: 400 })
+        }
+      },
+    },
+  ],
   access: {
     // Admins see everything; visitors only see active OTC products.
     read: ({ req }) => (req.user ? true : publicProductsWhere),

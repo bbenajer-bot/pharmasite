@@ -38,6 +38,25 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 **User action:** set Netlify env var `CRON_SECRET` (any long random string, `openssl rand -hex 32`), all scopes,
 then redeploy. Until then the function logs "URL or CRON_SECRET is not set" and does nothing.
 
+- **Product CSV import** (Products list → "Import from CSV"): for the client's old WordPress/WooCommerce
+  shop (Products → Export). Preview table first (nothing saved), per-row checkboxes, then imports one
+  product per request (Netlify time limits) with a progress bar.
+  - `src/lib/product-import/parse.ts`: pure CSV → products (WooCommerce columns + simple aliases like
+    name/price/quantity/image). Variations become separate products and inherit parent details;
+    variable parents, grouped, external, no-price rows can't be imported. Sale price ignored (regular used).
+    Rows mentioning "Rx"/"prescription" are unticked by default. Admin must tick an OTC confirmation
+    (server enforces it too).
+  - `src/lib/product-import/commit.ts`: matches existing products by SKU, else by name/slug
+    (skip or update, admin's choice); creates missing categories (most specific part of the first
+    category); downloads images (public http(s) only, 10 MB, 10 s) and reuses them on re-import via the
+    new `media.sourceUrl` field; HTML descriptions → rich text with Payload's `convertHTMLToLexical` + jsdom.
+  - Migration `20261019_194234_media_source_url`. New deps: papaparse, jsdom (`serverExternalPackages`).
+  - Tested with a sample WooCommerce export: preview, 3 API runs (create / skip / update, no duplicate
+    images), full run through the admin UI, rich text renders on the product page. Test data removed.
+  - **Limit until Phase 7:** on Netlify, image downloads will fail (no persistent disk until R2 storage is
+    added); products still import, with an "image could not be saved" note. Import images after R2,
+    or run the import locally against Neon.
+
 **Next**
 - Replace home page sample products with real `featured` products.
 

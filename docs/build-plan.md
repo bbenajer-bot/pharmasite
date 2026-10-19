@@ -41,6 +41,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Resend integration: new-order email to admin, order-received email to customer
 - [x] Admin button "Send payment instructions" + status-change emails to customer
 - [x] Scheduled job: reminder at 48h unpaid, auto-cancel at 7 days (Netlify scheduled function)
+- [x] Product CSV import in the admin (WordPress/WooCommerce export) — requested by client
 - [ ] Replace home page sample products with real `featured` products
 
 ## Phase 4 — Blog
