@@ -102,9 +102,19 @@ export function ProductImport() {
           error?: string
         }
         if (!res.ok || !data.action) throw new Error(data.error || `Server error (${res.status}).`)
-        out.push({ line: row.line, name: row.name, action: data.action, messages: data.warnings ?? [] })
+        out.push({
+          line: row.line,
+          name: row.name,
+          action: data.action,
+          messages: data.warnings ?? [],
+        })
       } catch (err) {
-        out.push({ line: row.line, name: row.name, action: 'failed', messages: [(err as Error).message] })
+        out.push({
+          line: row.line,
+          name: row.name,
+          action: 'failed',
+          messages: [(err as Error).message],
+        })
       }
       setProgress({ done: i + 1, total: todo.length })
     }
@@ -131,7 +141,9 @@ export function ProductImport() {
         >
           Import from CSV
         </button>
-        <p style={small}>Moving from WordPress? Import your products from a WooCommerce CSV export.</p>
+        <p style={small}>
+          Moving from WordPress? Import your products from a WooCommerce CSV export.
+        </p>
       </div>
     )
   }
@@ -140,7 +152,8 @@ export function ProductImport() {
   const count = (pred: (r: PreviewRow) => boolean) => rows?.filter(pred).length ?? 0
   const cantImport = count((r) => !!r.error)
   const alreadyThere = count((r) => r.exists && !r.error)
-  const tally = (action: Result['action']) => results?.filter((r) => r.action === action).length ?? 0
+  const tally = (action: Result['action']) =>
+    results?.filter((r) => r.action === action).length ?? 0
 
   return (
     <section
@@ -152,7 +165,14 @@ export function ProductImport() {
         marginBottom: 'calc(var(--base) * 1.5)',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '1rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          gap: '1rem',
+        }}
+      >
         <h2 id="product-import-title" style={{ margin: 0, fontSize: '1.25rem' }}>
           Import products from CSV
         </h2>
@@ -175,8 +195,8 @@ export function ProductImport() {
         <>
           <p style={{ ...small, marginTop: '0.5rem' }}>
             In your old WordPress admin go to <strong>Products → Export</strong>, keep “Export all
-            columns” and all product types, and click <strong>Generate CSV</strong>. Then choose that
-            file here. Nothing is saved until you click Import.
+            columns” and all product types, and click <strong>Generate CSV</strong>. Then choose
+            that file here. Nothing is saved until you click Import.
           </p>
           <div style={{ marginTop: 'var(--base)' }}>
             <label htmlFor="product-import-file" style={label}>
@@ -247,7 +267,9 @@ export function ProductImport() {
                 step={1}
                 value={defaultStock}
                 disabled={busy}
-                onChange={(e) => setDefaultStock(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
+                onChange={(e) =>
+                  setDefaultStock(Math.max(0, Math.floor(Number(e.target.value) || 0)))
+                }
                 style={{ width: '6rem' }}
               />
               <p style={small}>0 shows them as “Out of stock”.</p>
@@ -262,7 +284,9 @@ export function ProductImport() {
             }}
           >
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9em' }}>
-              <thead style={{ position: 'sticky', top: 0, background: 'var(--theme-elevation-50)' }}>
+              <thead
+                style={{ position: 'sticky', top: 0, background: 'var(--theme-elevation-50)' }}
+              >
                 <tr>
                   <th style={cell} scope="col">
                     <input
@@ -275,13 +299,27 @@ export function ProductImport() {
                       disabled={busy}
                     />
                   </th>
-                  <th style={cell} scope="col">Line</th>
-                  <th style={cell} scope="col">Product</th>
-                  <th style={cell} scope="col">Price</th>
-                  <th style={cell} scope="col">Stock</th>
-                  <th style={cell} scope="col">Category</th>
-                  <th style={cell} scope="col">Images</th>
-                  <th style={cell} scope="col">Notes</th>
+                  <th style={cell} scope="col">
+                    Line
+                  </th>
+                  <th style={cell} scope="col">
+                    Product
+                  </th>
+                  <th style={cell} scope="col">
+                    Price
+                  </th>
+                  <th style={cell} scope="col">
+                    Stock
+                  </th>
+                  <th style={cell} scope="col">
+                    Category
+                  </th>
+                  <th style={cell} scope="col">
+                    Images
+                  </th>
+                  <th style={cell} scope="col">
+                    Notes
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -370,7 +408,8 @@ export function ProductImport() {
             {busy && progress && (
               <>
                 <span role="status">
-                  Importing {progress.done} of {progress.total}… (images can take a few seconds each)
+                  Importing {progress.done} of {progress.total}… (images can take a few seconds
+                  each)
                 </span>
                 <button
                   type="button"
@@ -393,7 +432,8 @@ export function ProductImport() {
           <p>
             <strong>Done.</strong> {tally('created')} created, {tally('updated')} updated,{' '}
             {tally('skipped')} left unchanged, {tally('failed')} failed
-            {progress && progress.done < progress.total &&
+            {progress &&
+              progress.done < progress.total &&
               ` (stopped after ${progress.done} of ${progress.total})`}
             . Check prices, stock and descriptions before customers see them.
           </p>
@@ -404,7 +444,9 @@ export function ProductImport() {
                 .map((r) => (
                   <li key={r.line} style={{ marginBottom: '0.35rem' }}>
                     <strong
-                      style={r.action === 'failed' ? { color: 'var(--theme-error-500)' } : undefined}
+                      style={
+                        r.action === 'failed' ? { color: 'var(--theme-error-500)' } : undefined
+                      }
                     >
                       Line {r.line}, {r.name} ({r.action})
                     </strong>

@@ -68,9 +68,26 @@ type Column = keyof typeof COLUMNS
 type CsvRecord = Record<string, string>
 
 const ENTITIES: Record<string, string> = {
-  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '’', lsquo: '‘',
-  rdquo: '”', ldquo: '“', ndash: '–', mdash: '—', hellip: '…', reg: '®', trade: '™', copy: '©',
-  deg: '°', micro: 'µ', frac12: '½', frac14: '¼',
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+  rsquo: '’',
+  lsquo: '‘',
+  rdquo: '”',
+  ldquo: '“',
+  ndash: '–',
+  mdash: '—',
+  hellip: '…',
+  reg: '®',
+  trade: '™',
+  copy: '©',
+  deg: '°',
+  micro: 'µ',
+  frac12: '½',
+  frac14: '¼',
 }
 
 export function decodeEntities(text: string): string {
@@ -287,7 +304,12 @@ export function parseProductCsv(csv: string): ParseResult {
       product: {
         name,
         sku,
-        brand: decodeEntities(field('brand').split(/(?<!\\),/)[0]?.trim() ?? '').slice(0, 60) || null,
+        brand:
+          decodeEntities(
+            field('brand')
+              .split(/(?<!\\),/)[0]
+              ?.trim() ?? '',
+          ).slice(0, 60) || null,
         price,
         stock,
         summary,

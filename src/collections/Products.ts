@@ -98,10 +98,14 @@ export const Products: CollectionConfig = {
 
         const { importProduct } = await import('@/lib/product-import/commit')
         try {
-          const outcome = await importProduct(req, p as unknown as Parameters<typeof importProduct>[1], {
-            existing: body.existing === 'update' ? 'update' : 'skip',
-            defaultStock: Math.max(0, Math.floor(Number(body.defaultStock) || 0)),
-          })
+          const outcome = await importProduct(
+            req,
+            p as unknown as Parameters<typeof importProduct>[1],
+            {
+              existing: body.existing === 'update' ? 'update' : 'skip',
+              defaultStock: Math.max(0, Math.floor(Number(body.defaultStock) || 0)),
+            },
+          )
           return Response.json(outcome)
         } catch (err) {
           req.payload.logger.error({ err, name: p.name }, 'Product import failed')

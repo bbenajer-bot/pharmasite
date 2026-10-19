@@ -74,7 +74,10 @@ async function importImage(
   if (!isPublicHttpUrl(url)) return { error: `Skipped image (not a public web address): ${url}` }
 
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(IMAGE_TIMEOUT_MS), redirect: 'follow' })
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(IMAGE_TIMEOUT_MS),
+      redirect: 'follow',
+    })
     if (!res.ok) return { error: `Image not found (${res.status}): ${url}` }
     const mimetype = (res.headers.get('content-type') ?? '').split(';')[0].trim()
     if (!mimetype.startsWith('image/')) return { error: `Not an image: ${url}` }
@@ -145,7 +148,11 @@ export async function importProduct(
   const warnings: string[] = []
   const existing = await findExisting(req, p)
   if (existing && options.existing === 'skip') {
-    return { action: 'skipped', id: existing.id, warnings: ['Already in the shop; left unchanged.'] }
+    return {
+      action: 'skipped',
+      id: existing.id,
+      warnings: ['Already in the shop; left unchanged.'],
+    }
   }
 
   const imageIds: number[] = []
@@ -160,7 +167,10 @@ export async function importProduct(
     try {
       description = await toRichText(req.payload, p.descriptionHtml)
     } catch (err) {
-      req.payload.logger.warn({ err, name: p.name }, 'Product import: description conversion failed')
+      req.payload.logger.warn(
+        { err, name: p.name },
+        'Product import: description conversion failed',
+      )
       warnings.push('The description could not be converted; add it by hand.')
     }
   }
