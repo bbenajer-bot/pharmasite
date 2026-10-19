@@ -14,6 +14,7 @@ import { Categories } from './collections/Categories'
 import { Orders } from './collections/Orders'
 import { SiteSettings } from './globals/SiteSettings'
 import { ShopSettings } from './globals/ShopSettings'
+import { cronMaintenance } from './endpoints/cron'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -30,6 +31,7 @@ export default buildConfig({
   },
   collections: [Orders, Products, Categories, Users, Media, ContactMessages],
   globals: [SiteSettings, ShopSettings],
+  endpoints: [cronMaintenance],
   editor: lexicalEditor(),
   // Without RESEND_API_KEY (local dev), Payload prints emails to the server console instead.
   email: process.env.RESEND_API_KEY

@@ -28,8 +28,17 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
   In the browser: confirm dialog → toast → button becomes "Resend…" with timestamp, no console errors.
   Test orders + temp admin deleted. (Local Shop Settings row now saved with the default values.)
 
+- **Scheduled maintenance:** `netlify/functions/maintenance.ts` runs every 6 hours (`0 */6 * * *`) and POSTs to
+  `/api/cron/maintenance` (Payload root endpoint, `src/endpoints/cron.ts`, needs `Authorization: Bearer $CRON_SECRET`).
+  Logic in `src/lib/maintenance.ts`: reminder 48h after payment instructions were sent (once);
+  cancel 7 days after the order was placed (returns stock, emails the customer). Orders whose instructions
+  were never sent are left for staff. Phase 5's 90-day prescription cleanup should go in the same function.
+  Tested locally with six backdated orders (each case correct; second run changes nothing; 401 without secret).
+
+**User action:** set Netlify env var `CRON_SECRET` (any long random string, `openssl rand -hex 32`), all scopes,
+then redeploy. Until then the function logs "URL or CRON_SECRET is not set" and does nothing.
+
 **Next**
-- Netlify scheduled function: 48h payment reminder (`sendPaymentReminder` already written), auto-cancel at 7 days.
 - Replace home page sample products with real `featured` products.
 
 ---
