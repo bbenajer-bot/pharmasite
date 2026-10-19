@@ -42,9 +42,10 @@ function toSummary(p: Post): PostSummary {
 
 /** "October 19, 2026" (Illinois time, so a post dated late evening doesn't show the next day). */
 export function formatPostDate(iso: string): string {
-  return new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'America/Chicago' }).format(
-    new Date(iso),
-  )
+  return new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'long',
+    timeZone: 'America/Chicago',
+  }).format(new Date(iso))
 }
 
 const opts = { tags: [POSTS_TAG] }

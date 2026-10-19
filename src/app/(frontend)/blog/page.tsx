@@ -14,7 +14,8 @@ export const metadata: Metadata = {
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> }
 
-const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?.trim() || undefined
+const first = (v: string | string[] | undefined) =>
+  (Array.isArray(v) ? v[0] : v)?.trim() || undefined
 
 function blogHref(params: { category?: string; page?: number }) {
   const sp = new URLSearchParams()
@@ -29,7 +30,10 @@ export default async function BlogPage({ searchParams }: Props) {
   const category = first(sp.category)?.slice(0, 80)
   const page = Math.max(1, Number.parseInt(first(sp.page) ?? '1', 10) || 1)
 
-  const [categories, result] = await Promise.all([getBlogCategories(), getPosts({ category, page })])
+  const [categories, result] = await Promise.all([
+    getBlogCategories(),
+    getPosts({ category, page }),
+  ])
   const activeCategory = categories.find((c) => c.slug === category)
 
   return (
@@ -96,7 +100,10 @@ export default async function BlogPage({ searchParams }: Props) {
           {result.totalPages > 1 && (
             <nav aria-label="Pagination" className="mt-12 flex items-center justify-between gap-4">
               {result.page > 1 ? (
-                <Link href={blogHref({ category, page: result.page - 1 })} className="btn btn-secondary">
+                <Link
+                  href={blogHref({ category, page: result.page - 1 })}
+                  className="btn btn-secondary"
+                >
                   <ArrowLeft className="size-4" aria-hidden /> Newer
                 </Link>
               ) : (
@@ -106,7 +113,10 @@ export default async function BlogPage({ searchParams }: Props) {
                 Page {result.page} of {result.totalPages}
               </p>
               {result.page < result.totalPages ? (
-                <Link href={blogHref({ category, page: result.page + 1 })} className="btn btn-secondary">
+                <Link
+                  href={blogHref({ category, page: result.page + 1 })}
+                  className="btn btn-secondary"
+                >
                   Older <ArrowRight className="size-4" aria-hidden />
                 </Link>
               ) : (

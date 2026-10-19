@@ -60,7 +60,10 @@ export default async function PostPage({ params }: Props) {
               {post.category && (
                 <li className="flex items-center gap-1">
                   <ChevronRight className="size-4" aria-hidden />
-                  <Link href={`/blog?category=${post.category.slug}`} className="hover:text-brand-600">
+                  <Link
+                    href={`/blog?category=${post.category.slug}`}
+                    className="hover:text-brand-600"
+                  >
                     {post.category.name}
                   </Link>
                 </li>
@@ -68,7 +71,9 @@ export default async function PostPage({ params }: Props) {
             </ol>
           </nav>
 
-          <h1 className="mt-6 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl">{post.title}</h1>
+          <h1 className="mt-6 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl">
+            {post.title}
+          </h1>
           <p className="mt-4 text-lg leading-relaxed text-ink-soft">{post.excerpt}</p>
           <p className="mt-6 text-sm text-muted">
             By <span className="font-semibold text-ink">{post.author}</span>

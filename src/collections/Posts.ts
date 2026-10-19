@@ -40,7 +40,8 @@ export const Posts: CollectionConfig = {
     afterChange: [
       ({ doc, previousDoc }) => {
         const paths = ['/', '/blog', `/blog/${doc.slug}`]
-        if (previousDoc?.slug && previousDoc.slug !== doc.slug) paths.push(`/blog/${previousDoc.slug}`)
+        if (previousDoc?.slug && previousDoc.slug !== doc.slug)
+          paths.push(`/blog/${previousDoc.slug}`)
         refreshCache([POSTS_TAG], paths)
         return doc
       },
