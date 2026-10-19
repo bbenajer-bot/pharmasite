@@ -39,7 +39,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Global **Payment Instructions**: text per payment method (PayPal, Venmo, Cash App, Zelle, Apple Pay, invoice)
       — built as the "Payment methods" tab of the **Shop Settings** global (also holds delivery options/fees)
 - [x] Resend integration: new-order email to admin, order-received email to customer
-- [ ] Admin button "Send payment instructions" + status-change emails to customer
+- [x] Admin button "Send payment instructions" + status-change emails to customer
 - [ ] Scheduled job: reminder at 48h unpaid, auto-cancel at 7 days (Netlify scheduled function)
 - [ ] Replace home page sample products with real `featured` products
 

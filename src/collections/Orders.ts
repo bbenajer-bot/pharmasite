@@ -21,7 +21,7 @@ export const Orders: CollectionConfig = {
     defaultColumns: ['orderNumber', 'customerName', 'total', 'paymentMethod', 'status', 'createdAt'],
     listSearchableFields: ['orderNumber', 'customerName', 'email'],
     description:
-      'Customers pay outside the site. Send payment instructions, then mark the order Paid, then Shipped.',
+      'Customers pay outside the site. Send payment instructions, then mark the order Paid, then Shipped. The customer is emailed at each step.',
   },
   defaultSort: '-createdAt',
   access: {
@@ -46,6 +46,13 @@ export const Orders: CollectionConfig = {
           data.accessToken = randomBytes(24).toString('base64url')
           data.status = 'awaiting-payment'
           return data
+        }
+
+        // Email timestamps are set only by the server (button endpoint, scheduled job). An admin form
+        // opened before the email went out still holds the old value, so ignore what it submits.
+        if (!req.context?.setEmailTimestamps) {
+          data.paymentInstructionsSentAt = originalDoc?.paymentInstructionsSentAt ?? null
+          data.reminderSentAt = originalDoc?.reminderSentAt ?? null
         }
 
         const from = originalDoc?.status
@@ -96,8 +103,54 @@ export const Orders: CollectionConfig = {
         }
         return doc
       },
+      async ({ doc, previousDoc, operation, req }) => {
+        // Tell the customer when the order is paid, shipped / ready, or cancelled.
+        if (operation !== 'update' || doc.status === previousDoc?.status) return doc
+        const { sendStatusUpdate } = await import('@/lib/email/orders')
+        await sendStatusUpdate(req.payload, doc)
+        return doc
+      },
     ],
   },
+  endpoints: [
+    {
+      // Used by the "Send payment instructions" button in the order sidebar.
+      path: '/:id/send-payment-instructions',
+      method: 'post',
+      handler: async (req) => {
+        if (!req.user) return Response.json({ error: 'Please log in.' }, { status: 401 })
+        const id = Number(req.routeParams?.id)
+        const order = await req.payload
+          .findByID({ collection: 'orders', id, depth: 0, req, overrideAccess: false })
+          .catch(() => null)
+        if (!order) return Response.json({ error: 'Order not found.' }, { status: 404 })
+        if (order.status !== 'awaiting-payment') {
+          return Response.json({ error: 'This order is not awaiting payment.' }, { status: 400 })
+        }
+        const shop = await req.payload.findGlobal({ slug: 'shop-settings', depth: 0, req })
+        const instructions = shop.payment?.[order.paymentMethod]?.instructions?.trim()
+        if (!instructions) {
+          return Response.json(
+            { error: 'No instructions saved for this payment method. Add them in Settings → Shop Settings.' },
+            { status: 400 },
+          )
+        }
+        const { sendPaymentInstructions } = await import('@/lib/email/orders')
+        const ok = await sendPaymentInstructions(req.payload, order, instructions)
+        if (!ok) return Response.json({ error: 'The email could not be sent. Try again later.' }, { status: 502 })
+        const sentAt = new Date().toISOString()
+        await req.payload.update({
+          collection: 'orders',
+          id,
+          data: { paymentInstructionsSentAt: sentAt },
+          req,
+          overrideAccess: false,
+          context: { setEmailTimestamps: true },
+        })
+        return Response.json({ sentAt })
+      },
+    },
+  ],
   fields: [
     {
       type: 'tabs',
@@ -221,6 +274,14 @@ export const Orders: CollectionConfig = {
       ],
     },
     // Sidebar
+    {
+      name: 'sendPaymentInstructions',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/admin/SendPaymentInstructions#SendPaymentInstructions' },
+      },
+    },
     {
       name: 'orderNumber',
       label: 'Order #',

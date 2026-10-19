@@ -132,7 +132,7 @@ export interface UserAuthOperations {
   };
 }
 /**
- * Customers pay outside the site. Send payment instructions, then mark the order Paid, then Shipped.
+ * Customers pay outside the site. Send payment instructions, then mark the order Paid, then Shipped. The customer is emailed at each step.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "orders".

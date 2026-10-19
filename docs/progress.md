@@ -4,6 +4,36 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-19 — Session 5: Phase 3 shop + order emails (in progress)
+
+**Done (commits dab6048 → this one)**
+- `products` + `categories` collections (OTC-only enforced), shop page (grid, category filter, search),
+  product detail pages, localStorage cart + cart page + header count.
+- Checkout → `orders` collection (items/totals snapshot, order #1001+, secret `accessToken` for the
+  customer's `/order/<token>` page, stock reserved on order and returned on cancel).
+- **Shop Settings** global: delivery options/fees and payment instructions per method (placeholders
+  `{orderNumber}`, `{total}`, `{name}`; `TODO` handles to replace before launch).
+- Resend emails (`src/lib/email/`): new order → staff + customer; without `RESEND_API_KEY` Payload
+  only logs the subject to the server console.
+- Order sidebar button **Send payment instructions** (`src/components/admin/SendPaymentInstructions.tsx`
+  → `POST /api/orders/:id/send-payment-instructions`, admins only, only while awaiting payment).
+  Customer is emailed when status changes to Paid, Shipped/ready for pickup, or Cancelled.
+- `paymentInstructionsSentAt` / `reminderSentAt` can only be set by the server
+  (`req.context.setEmailTimestamps`); a stale admin form can't wipe them. The 48h reminder job must
+  pass that context too.
+
+**Verified**
+- typecheck + `pnpm build` pass. Via API with a temp admin: send (200), not logged in (401),
+  stale save → Paid keeps the sent timestamp, send after Paid (400), Shipped; all 5 emails fired.
+  In the browser: confirm dialog → toast → button becomes "Resend…" with timestamp, no console errors.
+  Test orders + temp admin deleted. (Local Shop Settings row now saved with the default values.)
+
+**Next**
+- Netlify scheduled function: 48h payment reminder (`sendPaymentReminder` already written), auto-cancel at 7 days.
+- Replace home page sample products with real `featured` products.
+
+---
+
 ## 2026-10-05 — Session 4: Site Settings global (Phase 2 complete)
 
 **Done**
