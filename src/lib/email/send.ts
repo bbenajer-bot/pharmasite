@@ -4,9 +4,7 @@ import { getSiteSettings } from '@/lib/settings'
 import type { SiteSettings } from '@/lib/site'
 
 /** Absolute site URL for links in emails (no trailing slash). */
-export function siteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/+$/, '')
-}
+export { siteUrl } from '@/lib/url'
 
 export function esc(value: unknown): string {
   return String(value ?? '')

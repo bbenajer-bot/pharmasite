@@ -4,6 +4,54 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-20 — Session 10: Phase 6 SEO
+
+**Done**
+- `src/app/sitemap.ts` → `/sitemap.xml`: the public pages + every active OTC product (with its images) + every
+  published post (`lastmod` = last edit). Refreshed at most hourly (`revalidate = 3600`), no redeploy needed.
+  Cart, checkout, order and "request received" pages are left out. Still returns the fixed pages if the DB is down.
+- `src/app/robots.ts` → `/robots.txt`: allows everything except `/admin`, `/api/`, `/cart`, `/checkout`, `/order/`,
+  points to the sitemap. **In preview mode (`NEXT_PUBLIC_PREVIEW_MODE=true`) it blocks every crawler.**
+- Icons: `src/app/(frontend)/icon.svg` (browser tab; the logo cross) and `src/app/apple-icon.tsx` (180px PNG,
+  phone home screen). Fixes the missing favicon found in Session 9. The admin keeps Payload's own favicon.
+- Share image: `src/app/opengraph-image.tsx` (1200×630 PNG, brand gradient, logo, name, "Licensed Illinois
+  pharmacy · City, ST" from Site Settings, refreshed hourly). Used by every page; blog posts with a cover image use it.
+  These two files sit in `src/app/`, not `(frontend)/`: inside a route group Next adds a hash to the URL
+  (`/opengraph-image-4usi79`), and the structured data needs a stable `/opengraph-image` and `/apple-icon`.
+- Layout metadata: Open Graph defaults (site name, `en_US`, type, image; the image must be listed there, because the
+  layout's `openGraph` replaces the file-based one) + `twitter:card = summary_large_image`.
+- JSON-LD (`src/lib/structured-data.ts`, `<JsonLd>` escapes `<`): **Pharmacy** on the home page (name, address,
+  phone, email, logo, image, opening hours), **Product** on product pages (price, USD, in/out of stock, SKU, brand,
+  images, seller = the pharmacy), **BlogPosting** on posts. Opening hours are free text in Site Settings, so
+  they're parsed best-effort ("Monday – Friday" + "9:00 AM – 7:00 PM", "Mon-Fri 9am-6pm", "Sat & Sun",
+  "Weekdays", "Every day 24 hours"…); anything unreadable or "Closed" is left out, never guessed.
+- `src/lib/url.ts`: `siteUrl()` (now also used for email links), `absoluteUrl()`, `isPreviewSite`. **Falls back to
+  Netlify's `URL` variable** when `NEXT_PUBLIC_SITE_URL` isn't set. That variable was never set on Netlify, so until
+  now email links on the live preview pointed at `localhost:3000`. Documented in `.env.example`.
+
+**Verified** (production build; a blog draft published temporarily, then set back to draft)
+- typecheck + `pnpm build` pass. `/sitemap.xml` 41 URLs (13 pages, 27 products, 1 post), image entries for products;
+  `/robots.txt` correct in normal and preview builds; preview pages keep `noindex, nofollow`.
+- All 19 page types: one title each, no duplicates, description present, `og:title/description/image/site_name/type`,
+  `twitter:card`; noindex only on cart, checkout, request received and 404. JSON-LD parses on home/product/post.
+- Lighthouse SEO **100** on home, shop, product, blog, post, prescriptions, contact, FAQ.
+- Looked at the OG image and the apple icon: render correctly.
+
+**Notes**
+- Sample product summaries are short (e.g. 38 characters); real products' summaries become their meta descriptions.
+- Validate with Google's Rich Results Test once the real domain is live (Phase 7, with Search Console).
+- No `og:url` / canonical tags: every page has a single URL, and shop/blog filters are real pages. Revisit only if
+  Search Console reports duplicates.
+
+**User action**
+- Optional now, required at launch: Netlify env var `NEXT_PUBLIC_SITE_URL=https://<real domain>`. Until then the
+  Netlify URL is used automatically.
+
+**Next**
+- Phase 6 last item: performance pass (Lighthouse ≥ 90 on mobile).
+
+---
+
 ## 2026-10-20 — Session 9: Phase 6 accessibility pass
 
 **Done**

@@ -8,6 +8,9 @@ import { ChevronRight, Info, Phone } from 'lucide-react'
 import { PostCard } from '@/components/blog/PostCard'
 import { formatPostDate, getAllPostSlugs, getLatestPosts, getPostBySlug } from '@/lib/posts'
 import { getSiteSettings } from '@/lib/settings'
+import { articleSchema } from '@/lib/structured-data'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { defaultShareImage } from '@/lib/url'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -20,18 +23,21 @@ export const dynamicParams = true
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = await getPostBySlug(slug)
+  const [post, site] = await Promise.all([getPostBySlug(slug), getSiteSettings()])
   if (!post) return { title: 'Article not found' }
   return {
     title: post.title,
     description: post.excerpt,
+    // Replaces the layout's openGraph, so repeat siteName/locale here.
     openGraph: {
       type: 'article',
+      siteName: site.name,
+      locale: 'en_US',
       title: post.title,
       description: post.excerpt,
       publishedTime: post.publishedAt ?? undefined,
       authors: [post.author],
-      images: post.cover ? [{ url: post.cover.url, alt: post.cover.alt }] : undefined,
+      images: post.cover ? [{ url: post.cover.url, alt: post.cover.alt }] : [defaultShareImage],
     },
   }
 }
@@ -48,6 +54,7 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <>
+      <JsonLd data={articleSchema(post, site)} />
       <article className="container-page py-10 md:py-14">
         <div className="mx-auto max-w-3xl">
           <nav aria-label="Breadcrumb">

@@ -4,11 +4,13 @@ import { notFound } from 'next/navigation'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import { ChevronRight, Info, Phone } from 'lucide-react'
 
+import { JsonLd } from '@/components/seo/JsonLd'
 import { AddToCart } from '@/components/shop/AddToCart'
 import { ProductPhoto } from '@/components/shop/ProductCard'
 import { formatUSD } from '@/lib/money'
 import { getAllProductSlugs, getProductBySlug } from '@/lib/products'
 import { getSiteSettings } from '@/lib/settings'
+import { productSchema } from '@/lib/structured-data'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -36,6 +38,7 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <div className="container-page py-10 md:py-14">
+      <JsonLd data={productSchema(product)} />
       <nav aria-label="Breadcrumb">
         <ol className="flex flex-wrap items-center gap-1 text-sm text-muted">
           <li>
@@ -46,7 +49,10 @@ export default async function ProductPage({ params }: Props) {
           {product.category && (
             <li className="flex items-center gap-1">
               <ChevronRight className="size-4" aria-hidden />
-              <Link href={`/shop?category=${product.category.slug}`} className="hover:text-brand-600">
+              <Link
+                href={`/shop?category=${product.category.slug}`}
+                className="hover:text-brand-600"
+              >
                 {product.category.name}
               </Link>
             </li>
@@ -101,9 +107,12 @@ export default async function ProductPage({ params }: Props) {
           <div className="mt-8 flex gap-3 rounded-xl border border-line bg-surface p-4 text-sm text-ink-soft">
             <Info className="mt-0.5 size-5 shrink-0 text-brand-600" aria-hidden />
             <p>
-              Always read and follow the label. Questions about whether this product is right for you
-              or how it mixes with your other medicines? Ask our pharmacist:{' '}
-              <a href={site.phoneHref} className="inline-flex items-center gap-1 font-semibold text-brand-600 hover:text-brand-700">
+              Always read and follow the label. Questions about whether this product is right for
+              you or how it mixes with your other medicines? Ask our pharmacist:{' '}
+              <a
+                href={site.phoneHref}
+                className="inline-flex items-center gap-1 font-semibold text-brand-600 hover:text-brand-700"
+              >
                 <Phone className="size-3.5" aria-hidden />
                 {site.phone}
               </a>

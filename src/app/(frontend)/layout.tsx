@@ -5,6 +5,7 @@ import React from 'react'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { getSiteSettings } from '@/lib/settings'
+import { defaultShareImage, isPreviewSite, siteUrl } from '@/lib/url'
 import './styles.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -15,19 +16,27 @@ const jakarta = Plus_Jakarta_Sans({
   display: 'swap',
 })
 
-// Set NEXT_PUBLIC_PREVIEW_MODE=true on preview deployments: shows a banner and keeps search engines out
-// while the site still contains placeholder business details. Remove the variable at launch.
-const isPreview = process.env.NEXT_PUBLIC_PREVIEW_MODE === 'true'
+// Preview deployments (NEXT_PUBLIC_PREVIEW_MODE=true) show a banner and keep search engines out.
+const isPreview = isPreviewSite
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSiteSettings()
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+    metadataBase: new URL(siteUrl()),
     title: {
       default: `${site.name} | Licensed Illinois Pharmacy`,
       template: `%s | ${site.name}`,
     },
     description: site.description,
+    // Pages fill in their own title/description. The image (src/app/opengraph-image.tsx) must be
+    // listed here: this openGraph object replaces the file-based one instead of merging with it.
+    openGraph: {
+      type: 'website',
+      siteName: site.name,
+      locale: 'en_US',
+      images: [defaultShareImage],
+    },
+    twitter: { card: 'summary_large_image' },
     ...(isPreview && { robots: { index: false, follow: false } }),
   }
 }

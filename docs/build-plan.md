@@ -65,8 +65,8 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Privacy Policy, Terms of Use, Accessibility statement (drafts; client's attorney reviews)
 - [ ] Notice of Privacy Practices page (text supplied by client)
 - [x] Accessibility pass (keyboard, screen reader labels, contrast, Lighthouse a11y ≥ 95) — 100 on every page
-- [ ] SEO: metadata on every page, `sitemap.xml`, `robots.txt`, Open Graph image,
-      LocalBusiness/Pharmacy JSON-LD schema
+- [x] SEO: metadata on every page, `sitemap.xml`, `robots.txt`, Open Graph image,
+      LocalBusiness/Pharmacy JSON-LD schema (+ Product and BlogPosting JSON-LD, icons)
 - [ ] Performance pass (Lighthouse ≥ 90 on mobile)
 
 ## Phase 7 — Deploy + handoff
