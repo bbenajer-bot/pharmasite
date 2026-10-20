@@ -4,6 +4,45 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-20 — Session 8: legal pages
+
+**Done**
+- Booking item skipped: still waiting on the client's choice (their EHR/pharmacy portal link or Doxy.me).
+- New **Legal Pages** global (admin → Settings → Legal Pages), one tab each for Privacy Policy, Terms of Use,
+  Accessibility, Notice of Privacy Practices: rich text + "Last updated" date. The client's attorney can edit
+  the text without a developer. `{name}`, `{phone}`, `{email}`, `{address}` in the text are filled in from
+  Site Settings when the page renders (`src/lib/legal.ts`).
+- Pages `/privacy`, `/terms`, `/accessibility`, `/hipaa-notice` (shared `LegalPage` component). An empty tab
+  shows a "contact us for a copy" box with the phone number (the NPP tab says "ask us for a copy").
+- Drafts: `pnpm seed:legal` (`src/scripts/seed-legal.ts`) fills privacy/terms/accessibility only where empty.
+  They describe what the site really does: form fields collected, no card data, no analytics or tracking cookies
+  (cart is in localStorage, admin login cookie only), prescription requests deleted after 90 days, unpaid orders
+  cancelled after 7 days, no health details in emails, WCAG 2.2 AA goal. NPP is not drafted (client supplies it).
+- The coming-soon catch-all is now a plain 404 route (all its pages exist). It sets the 404 tab title
+  "Page not found" + noindex (fixes the known title gap from Session 3).
+- Migration `20261020_190656_legal_pages`.
+
+**Verified**
+- typecheck + `pnpm build` pass; the 4 pages prerender. Seed run twice (second run changes nothing).
+- Production server: each page 200, one h1, no unfilled `{tokens}`; `/hipaa-notice` shows the fallback box;
+  unknown URL → 404 with title "Page not found" and noindex.
+- Chrome at 375px: `/privacy` no overflow, headings/lists/link render. Also did the Session 7 follow-up:
+  `/prescriptions` and `/prescriptions/refill` at 375px: no overflow, every field labelled, one h1.
+
+**For the client / attorney to decide** (written into the drafts, easy to change in the admin)
+- Returns: "no returns of medicines/health products; damaged or wrong items reported within 7 days are
+  replaced or refunded".
+- Minimum age 18 to order online; accessibility feedback answered within 2 business days.
+- Notice of Privacy Practices text (client supplies; paste into the NPP tab).
+
+**User action**
+- After Netlify deploys this commit: `DATABASE_URL='<Neon URL>' pnpm seed:legal` to load the drafts on the preview.
+
+**Next**
+- Phase 6: accessibility pass, then SEO (sitemap, robots, OG image, Pharmacy JSON-LD), then performance.
+
+---
+
 ## 2026-10-19 — Session 7: Phase 5 prescription requests
 
 **Done**

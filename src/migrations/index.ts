@@ -5,6 +5,7 @@ import * as migration_20261006_051102_orders_shop_settings from './20261006_0511
 import * as migration_20261019_194234_media_source_url from './20261019_194234_media_source_url';
 import * as migration_20261019_195808_blog from './20261019_195808_blog';
 import * as migration_20261019_205309_prescription_requests from './20261019_205309_prescription_requests';
+import * as migration_20261020_190656_legal_pages from './20261020_190656_legal_pages';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20261019_205309_prescription_requests.up,
     down: migration_20261019_205309_prescription_requests.down,
-    name: '20261019_205309_prescription_requests'
+    name: '20261019_205309_prescription_requests',
+  },
+  {
+    up: migration_20261020_190656_legal_pages.up,
+    down: migration_20261020_190656_legal_pages.down,
+    name: '20261020_190656_legal_pages'
   },
 ];

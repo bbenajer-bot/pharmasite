@@ -62,7 +62,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [ ] Booking: link to client's existing portal or Doxy.me (decision pending)
 
 ## Phase 6 — Legal, accessibility, SEO
-- [ ] Privacy Policy, Terms of Use, Accessibility statement (drafts; client's attorney reviews)
+- [x] Privacy Policy, Terms of Use, Accessibility statement (drafts; client's attorney reviews)
 - [ ] Notice of Privacy Practices page (text supplied by client)
 - [ ] Accessibility pass (keyboard, screen reader labels, contrast, Lighthouse a11y ≥ 95)
 - [ ] SEO: metadata on every page, `sitemap.xml`, `robots.txt`, Open Graph image,

@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "seed:posts": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/seed-posts.ts",
+    "seed:legal": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/seed-legal.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {

@@ -17,6 +17,7 @@ import { BlogCategories } from './collections/BlogCategories'
 import { PrescriptionRequests } from './collections/PrescriptionRequests'
 import { SiteSettings } from './globals/SiteSettings'
 import { ShopSettings } from './globals/ShopSettings'
+import { LegalPages } from './globals/LegalPages'
 import { cronMaintenance } from './endpoints/cron'
 
 const filename = fileURLToPath(import.meta.url)
@@ -43,7 +44,7 @@ export default buildConfig({
     Media,
     ContactMessages,
   ],
-  globals: [SiteSettings, ShopSettings],
+  globals: [SiteSettings, ShopSettings, LegalPages],
   endpoints: [cronMaintenance],
   editor: lexicalEditor(),
   // Without RESEND_API_KEY (local dev), Payload prints emails to the server console instead.

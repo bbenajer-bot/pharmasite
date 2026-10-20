@@ -104,10 +104,12 @@ export interface Config {
   globals: {
     'site-settings': SiteSetting;
     'shop-settings': ShopSetting;
+    'legal-pages': LegalPage;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'shop-settings': ShopSettingsSelect<false> | ShopSettingsSelect<true>;
+    'legal-pages': LegalPagesSelect<false> | LegalPagesSelect<true>;
   };
   locale: null;
   widgets: {
@@ -886,6 +888,113 @@ export interface ShopSetting {
   createdAt?: string | null;
 }
 /**
+ * The text of your legal pages. The starting text is a draft: have your attorney review it before launch.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-pages".
+ */
+export interface LegalPage {
+  id: number;
+  privacy?: {
+    /**
+     * Shown at the top of the page. Change it whenever the text changes.
+     */
+    lastUpdated?: string | null;
+    /**
+     * Draft text for your attorney to review. While this is empty, the page asks visitors to call for a copy. You can type these and the site fills them in: {name} (pharmacy name), {phone} (phone), {email} (email), {address} (full address).
+     */
+    content?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  terms?: {
+    /**
+     * Shown at the top of the page. Change it whenever the text changes.
+     */
+    lastUpdated?: string | null;
+    /**
+     * Draft text for your attorney to review. While this is empty, the page asks visitors to call for a copy. You can type these and the site fills them in: {name} (pharmacy name), {phone} (phone), {email} (email), {address} (full address).
+     */
+    content?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  accessibility?: {
+    /**
+     * Shown at the top of the page. Change it whenever the text changes.
+     */
+    lastUpdated?: string | null;
+    /**
+     * Draft text for your attorney to review. While this is empty, the page asks visitors to call for a copy. You can type these and the site fills them in: {name} (pharmacy name), {phone} (phone), {email} (email), {address} (full address).
+     */
+    content?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  npp?: {
+    /**
+     * Shown at the top of the page. Change it whenever the text changes.
+     */
+    lastUpdated?: string | null;
+    /**
+     * Paste your Notice of Privacy Practices here. While this is empty, the page tells visitors to ask the pharmacy for a copy. You can type these and the site fills them in: {name} (pharmacy name), {phone} (phone), {email} (email), {address} (full address).
+     */
+    content?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -991,6 +1100,39 @@ export interface ShopSettingsSelect<T extends boolean = true> {
       };
   notifyEmail?: T;
   prescriptionNotifyEmail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-pages_select".
+ */
+export interface LegalPagesSelect<T extends boolean = true> {
+  privacy?:
+    | T
+    | {
+        lastUpdated?: T;
+        content?: T;
+      };
+  terms?:
+    | T
+    | {
+        lastUpdated?: T;
+        content?: T;
+      };
+  accessibility?:
+    | T
+    | {
+        lastUpdated?: T;
+        content?: T;
+      };
+  npp?:
+    | T
+    | {
+        lastUpdated?: T;
+        content?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
