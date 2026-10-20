@@ -113,7 +113,10 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
           </div>
         )}
         {notices.length > 0 && (
-          <ul role="status" className="space-y-1 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+          <ul
+            role="status"
+            className="space-y-1 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"
+          >
             {notices.map((n) => (
               <li key={n}>{n}</li>
             ))}
@@ -129,12 +132,22 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
               <input {...input('phone', { type: 'tel', autoComplete: 'tel', maxLength: 30 })} />
             </Field>
           </div>
-          <Field label="Email" name="email" error={err.email} required hint="We send your order confirmation and payment instructions here.">
+          <Field
+            label="Email"
+            name="email"
+            error={err.email}
+            required
+            hint="We send your order confirmation and payment instructions here."
+          >
             <input {...input('email', { type: 'email', autoComplete: 'email', maxLength: 200 })} />
           </Field>
         </Fieldset>
 
-        <Fieldset legend="How would you like to get your order?" error={err.fulfillment} errorId="co-fulfillment-error">
+        <Fieldset
+          legend="How would you like to get your order?"
+          error={err.fulfillment}
+          errorId="co-fulfillment-error"
+        >
           <div className="space-y-3">
             {fees.fulfillment.map((f) => {
               const fee = fulfillmentFeeCents(fees, f.value, subtotalCents) ?? 0
@@ -184,7 +197,13 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
                   />
                 </Field>
                 <Field label="ZIP" name="zip" error={err.zip} required>
-                  <input {...input('zip', { autoComplete: 'postal-code', inputMode: 'numeric', maxLength: 10 })} />
+                  <input
+                    {...input('zip', {
+                      autoComplete: 'postal-code',
+                      inputMode: 'numeric',
+                      maxLength: 10,
+                    })}
+                  />
                 </Field>
               </div>
             </div>
@@ -230,7 +249,11 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
             Website <input type="text" name="website" tabIndex={-1} autoComplete="off" />
           </label>
         </div>
-        <input type="hidden" name="cart" value={JSON.stringify(items.map((i) => ({ id: i.id, qty: i.qty })))} />
+        <input
+          type="hidden"
+          name="cart"
+          value={JSON.stringify(items.map((i) => ({ id: i.id, qty: i.qty })))}
+        />
 
         <div>
           <label className="flex gap-3 text-sm text-ink-soft">
@@ -256,7 +279,10 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
         </div>
       </div>
 
-      <aside aria-labelledby="co-summary" className="h-fit rounded-2xl border border-line bg-surface p-6 lg:sticky lg:top-24">
+      <aside
+        aria-labelledby="co-summary"
+        className="h-fit rounded-2xl border border-line bg-surface p-6 lg:sticky lg:top-24"
+      >
         <h2 id="co-summary" className="text-xl font-bold">
           Your order
         </h2>
@@ -277,7 +303,13 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
           </div>
           <div className="flex justify-between">
             <dt>{fulfillment ? labelOf(fulfillmentOptions, fulfillment) : 'Delivery'}</dt>
-            <dd>{feeCents == null ? 'Choose an option' : feeCents === 0 ? 'Free' : formatUSD(fromCents(feeCents))}</dd>
+            <dd>
+              {feeCents == null
+                ? 'Choose an option'
+                : feeCents === 0
+                  ? 'Free'
+                  : formatUSD(fromCents(feeCents))}
+            </dd>
           </div>
           <div className="flex justify-between border-t border-line pt-2 text-lg font-bold">
             <dt>Total</dt>
@@ -351,7 +383,9 @@ function Field({
   children: ReactElement<Record<string, unknown>>
 }) {
   // Screen readers need the required state and the hint too (the asterisk is visual only).
-  const describedBy = [hint && `co-${name}-hint`, error && `co-${name}-error`].filter(Boolean).join(' ')
+  const describedBy = [hint && `co-${name}-hint`, error && `co-${name}-error`]
+    .filter(Boolean)
+    .join(' ')
   return (
     <div>
       <label htmlFor={`co-${name}`} className="font-medium text-ink">

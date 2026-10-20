@@ -48,20 +48,33 @@ export function CartView() {
               <li key={item.id} className="flex gap-4 py-6">
                 <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 to-surface sm:size-24">
                   {item.image ? (
-                    <Image src={item.image} alt={item.imageAlt} fill sizes="96px" className="object-contain p-2" />
+                    <Image
+                      src={item.image}
+                      alt={item.imageAlt}
+                      fill
+                      sizes="96px"
+                      className="object-contain p-2"
+                    />
                   ) : (
                     <Package className="size-8 text-ink/20" aria-hidden />
                   )}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:justify-between">
                   <div className="min-w-0">
-                    <Link href={`/shop/${item.slug}`} className="font-semibold hover:text-brand-600">
+                    <Link
+                      href={`/shop/${item.slug}`}
+                      className="font-semibold hover:text-brand-600"
+                    >
                       {item.name}
                     </Link>
                     <p className="mt-1 text-sm text-ink-soft">{formatUSD(item.price)} each</p>
                   </div>
                   <div className="flex items-center gap-4 sm:flex-col sm:items-end">
-                    <div className="flex items-center rounded-full border border-line" role="group" aria-label={`Quantity of ${item.name}`}>
+                    <div
+                      className="flex items-center rounded-full border border-line"
+                      role="group"
+                      aria-label={`Quantity of ${item.name}`}
+                    >
                       {/* aria-disabled, not disabled: a disabled button would drop keyboard focus.
                           setQty clamps, so clicking at the limit does nothing. */}
                       <button
@@ -86,7 +99,9 @@ export function CartView() {
                         <Plus className="size-4" aria-hidden />
                       </button>
                     </div>
-                    <p className="font-semibold">{formatUSD(fromCents(toCents(item.price) * item.qty))}</p>
+                    <p className="font-semibold">
+                      {formatUSD(fromCents(toCents(item.price) * item.qty))}
+                    </p>
                     <button
                       type="button"
                       className="inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-red-700"
@@ -106,7 +121,10 @@ export function CartView() {
             ))}
           </ul>
 
-          <aside aria-labelledby="summary-heading" className="h-fit rounded-2xl border border-line bg-surface p-6">
+          <aside
+            aria-labelledby="summary-heading"
+            className="h-fit rounded-2xl border border-line bg-surface p-6"
+          >
             <h2 id="summary-heading" className="text-xl font-bold">
               Order summary
             </h2>
@@ -128,7 +146,10 @@ export function CartView() {
             >
               Continue to checkout <ArrowRight className="size-4" aria-hidden />
             </Link>
-            <Link href="/shop" className="mt-4 block text-center text-sm font-semibold text-brand-600 hover:text-brand-700">
+            <Link
+              href="/shop"
+              className="mt-4 block text-center text-sm font-semibold text-brand-600 hover:text-brand-700"
+            >
               Keep shopping
             </Link>
           </aside>

@@ -71,7 +71,9 @@ export function Header({ site }: { site: { name: string; phone: string; phoneHre
           <Link
             href="/cart"
             className="relative rounded-full p-2 text-ink-soft hover:bg-brand-50 hover:text-ink"
-            aria-label={cartCount ? `Cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}` : 'Cart'}
+            aria-label={
+              cartCount ? `Cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}` : 'Cart'
+            }
           >
             <ShoppingBag className="size-5" aria-hidden />
             {cartCount > 0 && (
