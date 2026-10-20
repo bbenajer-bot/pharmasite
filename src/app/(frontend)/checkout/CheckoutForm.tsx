@@ -58,7 +58,12 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
     }
   }, [state, router])
 
-  if (!hydrated) return <p className="py-16 text-center text-ink-soft">Loading checkout…</p>
+  // Same height as the empty-cart box, so the footer doesn't jump once the cart loads.
+  if (!hydrated) {
+    return (
+      <p className="flex min-h-60 items-center justify-center text-ink-soft">Loading checkout…</p>
+    )
+  }
 
   if (state.status === 'success') {
     return <p className="py-16 text-center text-ink-soft">Thank you. Opening your order…</p>

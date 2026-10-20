@@ -67,7 +67,7 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Accessibility pass (keyboard, screen reader labels, contrast, Lighthouse a11y ≥ 95) — 100 on every page
 - [x] SEO: metadata on every page, `sitemap.xml`, `robots.txt`, Open Graph image,
       LocalBusiness/Pharmacy JSON-LD schema (+ Product and BlogPosting JSON-LD, icons)
-- [ ] Performance pass (Lighthouse ≥ 90 on mobile)
+- [x] Performance pass (Lighthouse ≥ 90 on mobile) — 96–100 on every page
 
 ## Phase 7 — Deploy + handoff
 - [ ] Accounts in the client's name: GitHub (private repo), Neon, Netlify, Resend, Cloudflare

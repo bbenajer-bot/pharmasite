@@ -4,6 +4,37 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-20 — Session 11: Phase 6 performance pass
+
+**Done**
+- Audit: Lighthouse performance (mobile, simulated slow 4G + 4× CPU) on every public page, production build.
+  Before: 96–100 everywhere, already above the 90 target.
+- Fixed:
+  - Payload's `withPayload` sends `Accept-CH` / `Critical-CH: Sec-CH-Prefers-Color-Scheme` (+ `Vary`) on **every**
+    path, for the admin's light/dark theme. On public pages Chrome repeats the first request because of it
+    (~600 ms extra on mobile, Lighthouse "redirects") and the `Vary` splits the CDN cache. `next.config.ts` now
+    moves that header rule to `/admin/:path*` only. (`X-Powered-By` is in the same rule, so it's admin-only too.)
+  - Cart/checkout: the "Loading…" placeholder (shown until the browser cart is read) is now the same height as the
+    empty-cart box, so the footer no longer jumps. CLS 0.054 → 0.003.
+
+**Verified**
+- typecheck + `pnpm build` pass. Headers: none on `/`, `/shop`; still present on `/admin`; admin and API respond.
+- Lighthouse performance (mobile) after: home 96, privacy 100, product/checkout/terms 99, all others 97–98.
+  TBT 40–70 ms, CLS 0–0.003, FCP 0.8–0.9 s; simulated LCP 1.9–2.8 s (a text block, held back by CSS + fonts).
+- Left as is: the ~27 KiB "unused JavaScript" and the one render-blocking CSS file are Next.js/React's shared
+  bundle; not worth fighting at these scores.
+
+**Notes**
+- Re-check on the real Netlify URL after deploy (Phase 7). Real product photos should stay small: they're served
+  through `next/image` (resized, WebP/AVIF), but upload sensible sizes (≤ 2000 px).
+- Build still prints a `metadataBase` warning 3 times (for the admin / not-found routes outside the public layout).
+  Harmless: public pages set it via the layout.
+
+**Next**
+- Phase 6 is done except the Notice of Privacy Practices text (waiting on the client). Phase 7: deploy + handoff.
+
+---
+
 ## 2026-10-20 — Session 10: Phase 6 SEO
 
 **Done**

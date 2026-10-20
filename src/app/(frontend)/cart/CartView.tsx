@@ -17,7 +17,10 @@ export function CartView() {
   const cartRegion = useRef<HTMLDivElement>(null)
 
   if (!hydrated) {
-    return <p className="py-16 text-center text-ink-soft">Loading your cart…</p>
+    // Same height as the empty-cart box, so the footer doesn't jump once the cart loads.
+    return (
+      <p className="flex min-h-60 items-center justify-center text-ink-soft">Loading your cart…</p>
+    )
   }
 
   return (
