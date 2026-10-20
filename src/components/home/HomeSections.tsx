@@ -306,7 +306,7 @@ export async function AboutTeaser() {
             That&apos;s what we built here.&rdquo;
           </blockquote>
           <figcaption className="mt-6 flex items-center gap-4">
-            <span className="flex size-14 items-center justify-center rounded-full bg-brand-500 font-display text-lg font-bold">
+            <span className="flex size-14 items-center justify-center rounded-full bg-brand-600 font-display text-lg font-bold">
               {initials}
             </span>
             <span>

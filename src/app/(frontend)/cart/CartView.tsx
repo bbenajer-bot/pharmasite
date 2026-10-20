@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRef, useState } from 'react'
 import { ArrowRight, Info, Minus, Package, Plus, ShoppingBag, Trash2 } from 'lucide-react'
 
 import { cart, useCart, useHydrated } from '@/components/shop/cart-store'
@@ -12,14 +13,17 @@ export function CartView() {
   const hydrated = useHydrated()
   const { items, count, subtotalCents } = useCart()
   const { checking, notices } = useCartSync()
+  const [removed, setRemoved] = useState('')
+  const cartRegion = useRef<HTMLDivElement>(null)
 
   if (!hydrated) {
     return <p className="py-16 text-center text-ink-soft">Loading your cart…</p>
   }
 
   return (
-    <>
+    <div ref={cartRegion} tabIndex={-1} className="focus:outline-none">
       <div role="status" aria-live="polite">
+        {removed && <p className="sr-only">{removed}</p>}
         {notices.length > 0 && (
           <ul className="mb-8 space-y-1 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
             {notices.map((n) => (
@@ -58,11 +62,13 @@ export function CartView() {
                   </div>
                   <div className="flex items-center gap-4 sm:flex-col sm:items-end">
                     <div className="flex items-center rounded-full border border-line" role="group" aria-label={`Quantity of ${item.name}`}>
+                      {/* aria-disabled, not disabled: a disabled button would drop keyboard focus.
+                          setQty clamps, so clicking at the limit does nothing. */}
                       <button
                         type="button"
-                        className="rounded-full p-2 text-ink-soft hover:bg-brand-50 disabled:opacity-40"
+                        className="rounded-full p-2 text-ink-soft hover:bg-brand-50 aria-disabled:opacity-40"
                         onClick={() => cart.setQty(item.id, item.qty - 1)}
-                        disabled={item.qty <= 1}
+                        aria-disabled={item.qty <= 1}
                         aria-label={`Decrease quantity of ${item.name}`}
                       >
                         <Minus className="size-4" aria-hidden />
@@ -72,9 +78,9 @@ export function CartView() {
                       </span>
                       <button
                         type="button"
-                        className="rounded-full p-2 text-ink-soft hover:bg-brand-50 disabled:opacity-40"
+                        className="rounded-full p-2 text-ink-soft hover:bg-brand-50 aria-disabled:opacity-40"
                         onClick={() => cart.setQty(item.id, item.qty + 1)}
-                        disabled={item.qty >= item.maxQty}
+                        aria-disabled={item.qty >= item.maxQty}
                         aria-label={`Increase quantity of ${item.name}`}
                       >
                         <Plus className="size-4" aria-hidden />
@@ -84,7 +90,12 @@ export function CartView() {
                     <button
                       type="button"
                       className="inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-red-700"
-                      onClick={() => cart.remove(item.id)}
+                      onClick={() => {
+                        cart.remove(item.id)
+                        // The button disappears; tell screen readers and keep focus in the cart.
+                        setRemoved(`Removed ${item.name} from your cart.`)
+                        cartRegion.current?.focus()
+                      }}
                     >
                       <Trash2 className="size-4" aria-hidden /> Remove
                       <span className="sr-only"> {item.name}</span>
@@ -123,6 +134,6 @@ export function CartView() {
           </aside>
         </div>
       )}
-    </>
+    </div>
   )
 }

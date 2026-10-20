@@ -4,6 +4,41 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-20 — Session 9: Phase 6 accessibility pass
+
+**Done**
+- Audit: Lighthouse (mobile) accessibility + axe-core (WCAG 2.0/2.1/2.2 A+AA and best practices) on every public
+  page at 1280px and 375px, on the production build. Before: 93 on home, 96 elsewhere.
+- Fixed:
+  - Footer legal links were too small to tap (WCAG 2.2 target size): now `inline-block py-1`.
+  - Doctor initials circle on the home page: white on `brand-500` failed contrast; now `brand-600`.
+  - Mobile menu: Escape closes it and returns focus to the menu button.
+  - Cart: +/− buttons use `aria-disabled` instead of `disabled`, so focus isn't lost at the limit;
+    "Remove" announces "Removed X from your cart." and keeps focus in the cart.
+  - Checkout: required fields, radio groups and the acknowledgement checkbox now carry `required`
+    (the asterisk is visual only); field hints (email, order notes "no health information") are linked with
+    `aria-describedby`, together with any error.
+
+**Verified**
+- Lighthouse accessibility **100** on all 18 pages (incl. cart/checkout with items, a published blog post,
+  submitted page); axe: 0 violations at both widths; one h1 per page; no horizontal overflow at 375px.
+- Keyboard script (Puppeteer): first Tab = visible skip link, which jumps into `main`; add to cart status message;
+  cart focus/announcements; checkout, contact, prescription and refill forms submitted empty → focus moves to the
+  error summary, fields have `aria-invalid` + described by their error; axe clean in those error states;
+  mobile menu open/Escape.
+- typecheck + `pnpm build` pass. (A blog draft was published temporarily for the audit, then set back to draft.)
+- Audit scripts live outside the repo (session scratchpad); Lighthouse/axe were not added as dependencies.
+
+**Found for later**
+- No favicon / app icon (`/favicon.ico` 404). Do it with the SEO item (icons + OG image).
+- Home "About us" block shows a quote attributed to the doctor ("Every patient deserves care…"). It's placeholder
+  copy: the client must approve the wording or it should be removed (no invented quotes).
+
+**Next**
+- Phase 6: SEO (metadata check, sitemap.xml, robots.txt, favicon + OG image, Pharmacy JSON-LD), then performance.
+
+---
+
 ## 2026-10-20 — Session 8: legal pages
 
 **Done**

@@ -2,7 +2,15 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useActionState, useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  cloneElement,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import { AlertTriangle, Lock, ShoppingBag } from 'lucide-react'
 
 import { cart, useCart, useHydrated } from '@/components/shop/cart-store'
@@ -79,7 +87,6 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
     name,
     defaultValue: v?.[name] ?? '',
     'aria-invalid': err[name] ? true : undefined,
-    'aria-describedby': err[name] ? `co-${name}-error` : undefined,
     className: 'input mt-2',
     ...extra,
   })
@@ -229,6 +236,7 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
           <label className="flex gap-3 text-sm text-ink-soft">
             <input
               type="checkbox"
+              required
               name="ack"
               value="yes"
               className="mt-0.5 size-5 shrink-0 accent-brand-600"
@@ -340,8 +348,10 @@ function Field({
   error?: string
   hint?: string
   required?: boolean
-  children: ReactNode
+  children: ReactElement<Record<string, unknown>>
 }) {
+  // Screen readers need the required state and the hint too (the asterisk is visual only).
+  const describedBy = [hint && `co-${name}-hint`, error && `co-${name}-error`].filter(Boolean).join(' ')
   return (
     <div>
       <label htmlFor={`co-${name}`} className="font-medium text-ink">
@@ -355,8 +365,12 @@ function Field({
           <span className="font-normal text-muted"> (optional)</span>
         )}
       </label>
-      {hint && <p className="mt-1 text-sm text-muted">{hint}</p>}
-      {children}
+      {hint && (
+        <p id={`co-${name}-hint`} className="mt-1 text-sm text-muted">
+          {hint}
+        </p>
+      )}
+      {cloneElement(children, { required, 'aria-describedby': describedBy || undefined })}
       {error && (
         <p id={`co-${name}-error`} className="mt-1.5 text-sm font-medium text-red-700">
           {error}
@@ -391,6 +405,7 @@ function Choice({
     <label className="flex cursor-pointer gap-3 rounded-xl border border-line bg-white p-4 has-checked:border-brand-500 has-checked:bg-brand-50">
       <input
         type="radio"
+        required
         name={name}
         value={value}
         checked={checked}

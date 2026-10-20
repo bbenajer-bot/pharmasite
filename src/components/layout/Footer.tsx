@@ -98,7 +98,7 @@ export async function Footer() {
           <ul className="flex flex-wrap gap-x-4 gap-y-1">
             {legal.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="hover:text-white hover:underline">
+                <Link href={l.href} className="inline-block py-1 hover:text-white hover:underline">
                   {l.label}
                 </Link>
               </li>

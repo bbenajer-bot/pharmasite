@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Menu, Phone, ShoppingBag, X } from 'lucide-react'
 
 import { useCart } from '@/components/shop/cart-store'
@@ -15,8 +15,22 @@ export function Header({ site }: { site: { name: string; phone: string; phoneHre
   const pathname = usePathname()
   const { count: cartCount } = useCart()
 
+  const menuButton = useRef<HTMLButtonElement>(null)
+
   // Close the mobile menu whenever the route changes.
   useEffect(() => setOpen(false), [pathname])
+
+  // Escape closes the mobile menu and puts focus back on its button.
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setOpen(false)
+      menuButton.current?.focus()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
@@ -73,6 +87,7 @@ export function Header({ site }: { site: { name: string; phone: string; phoneHre
             Request a prescription
           </Link>
           <button
+            ref={menuButton}
             type="button"
             className="rounded-full p-2 text-ink lg:hidden"
             aria-expanded={open}
