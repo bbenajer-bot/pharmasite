@@ -16,7 +16,7 @@ const jakarta = Plus_Jakarta_Sans({
   display: 'swap',
 })
 
-// Preview deployments (NEXT_PUBLIC_PREVIEW_MODE=true) show a banner and keep search engines out.
+// Preview deployments (NEXT_PUBLIC_PREVIEW_MODE=true) keep search engines out.
 const isPreview = isPreviewSite
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -53,12 +53,6 @@ export default async function FrontendLayout({ children }: { children: React.Rea
         >
           Skip to content
         </a>
-        {isPreview && (
-          <div className="bg-amber-100 px-4 py-2 text-center text-sm font-medium text-amber-950">
-            Preview site, work in progress. Names, contact details, and products shown are
-            placeholders. Not open for orders or prescription requests yet.
-          </div>
-        )}
         <Header site={{ name: site.name, phone: site.phone, phoneHref: site.phoneHref }} />
         <main id="main" className="flex-1">
           {children}

@@ -24,7 +24,7 @@ export const defaultShareImage = {
 }
 
 /**
- * NEXT_PUBLIC_PREVIEW_MODE=true on preview deployments: shows a banner and keeps search engines out
- * (noindex + robots.txt) while the site still has placeholder details. Remove the variable at launch.
+ * NEXT_PUBLIC_PREVIEW_MODE=true keeps search engines out (noindex + robots.txt) while the site runs
+ * on its temporary netlify.app address. Remove the variable once the real domain is connected.
  */
 export const isPreviewSite = process.env.NEXT_PUBLIC_PREVIEW_MODE === 'true'
