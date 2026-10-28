@@ -192,7 +192,9 @@ export interface Order {
     quantity: number;
     lineTotal: number;
     product?: (number | null) | Product;
+    option?: string | null;
     sku?: string | null;
+    optionId?: string | null;
     id?: string | null;
   }[];
   subtotal: number;
@@ -270,12 +272,34 @@ export interface Product {
    * The first image is used on product cards.
    */
   images?: (number | Media)[] | null;
+  /**
+   * With options below: set automatically to the lowest option price.
+   */
   price: number;
   /**
-   * 0 shows "Out of stock".
+   * 0 shows "Out of stock". With options: the total, set automatically.
    */
   stock: number;
   sku?: string | null;
+  /**
+   * Only for products with options, e.g. Size, Count, Flavor.
+   */
+  optionName?: string | null;
+  /**
+   * Leave empty for a product with one price. Add options (sizes, counts, flavors) when each has its own price or stock; customers then pick one.
+   */
+  options?:
+    | {
+        /**
+         * e.g. 60 capsules
+         */
+        label: string;
+        price: number;
+        stock: number;
+        sku?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Part of the page address. Leave empty to fill in from the name. Changing it later breaks old links.
    */
@@ -576,7 +600,9 @@ export interface OrdersSelect<T extends boolean = true> {
         quantity?: T;
         lineTotal?: T;
         product?: T;
+        option?: T;
         sku?: T;
+        optionId?: T;
         id?: T;
       };
   subtotal?: T;
@@ -624,6 +650,16 @@ export interface ProductsSelect<T extends boolean = true> {
   price?: T;
   stock?: T;
   sku?: T;
+  optionName?: T;
+  options?:
+    | T
+    | {
+        label?: T;
+        price?: T;
+        stock?: T;
+        sku?: T;
+        id?: T;
+      };
   slug?: T;
   status?: T;
   isOTC?: T;

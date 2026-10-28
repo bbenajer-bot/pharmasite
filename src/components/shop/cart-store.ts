@@ -1,9 +1,10 @@
 import { useSyncExternalStore } from 'react'
 
 import { toCents } from '@/lib/money'
+import { lineKey } from '@/lib/product-options'
 import { MAX_PER_LINE } from '@/lib/shop'
 
-export { MAX_PER_LINE }
+export { lineKey, MAX_PER_LINE }
 
 /**
  * Shopping cart kept in the visitor's browser (localStorage), shared across tabs.
@@ -16,6 +17,9 @@ export type CartItem = {
   price: number
   image: string | null
   imageAlt: string
+  /** The chosen product option (size, count, flavor); null for products without options. */
+  optionId: string | null
+  option: string | null
   qty: number
   /** Most the visitor may order: the lower of stock and MAX_PER_LINE. */
   maxQty: number
@@ -43,7 +47,13 @@ function isItem(v: unknown): v is CartItem {
 function read(): CartItem[] {
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(KEY) ?? '[]')
-    return Array.isArray(parsed) ? parsed.filter(isItem) : EMPTY
+    if (!Array.isArray(parsed)) return EMPTY
+    // Carts saved before products had options have no option fields.
+    return parsed.filter(isItem).map((i) => ({
+      ...i,
+      optionId: typeof i.optionId === 'string' ? i.optionId : null,
+      option: typeof i.option === 'string' ? i.option : null,
+    }))
   } catch {
     return EMPTY
   }
@@ -81,20 +91,22 @@ export const cart = {
   snapshot: getSnapshot,
   add(item: Omit<CartItem, 'qty'>, qty: number) {
     const items = getSnapshot()
-    const existing = items.find((i) => i.id === item.id)
+    const key = lineKey(item)
+    const existing = items.find((i) => lineKey(i) === key)
     write(
       existing
         ? items.map((i) =>
-            i.id === item.id ? { ...i, ...item, qty: clamp(i.qty + qty, item.maxQty) } : i,
+            lineKey(i) === key ? { ...i, ...item, qty: clamp(i.qty + qty, item.maxQty) } : i,
           )
         : [...items, { ...item, qty: clamp(qty, item.maxQty) }],
     )
   },
-  setQty(id: number, qty: number) {
-    write(getSnapshot().map((i) => (i.id === id ? { ...i, qty: clamp(qty, i.maxQty) } : i)))
+  /** `key` is lineKey(item): product + option. */
+  setQty(key: string, qty: number) {
+    write(getSnapshot().map((i) => (lineKey(i) === key ? { ...i, qty: clamp(qty, i.maxQty) } : i)))
   },
-  remove(id: number) {
-    write(getSnapshot().filter((i) => i.id !== id))
+  remove(key: string) {
+    write(getSnapshot().filter((i) => lineKey(i) !== key))
   },
   replace(items: CartItem[]) {
     write(items)

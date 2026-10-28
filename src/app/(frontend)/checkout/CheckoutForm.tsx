@@ -13,9 +13,10 @@ import {
 } from 'react'
 import { AlertTriangle, Lock, ShoppingBag } from 'lucide-react'
 
-import { cart, useCart, useHydrated } from '@/components/shop/cart-store'
+import { cart, lineKey, useCart, useHydrated } from '@/components/shop/cart-store'
 import { useCartSync } from '@/components/shop/useCartSync'
 import { formatUSD, fromCents, toCents } from '@/lib/money'
+import { nameWithOption } from '@/lib/product-options'
 import {
   fulfillmentFeeCents,
   fulfillmentOptions,
@@ -257,7 +258,7 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
         <input
           type="hidden"
           name="cart"
-          value={JSON.stringify(items.map((i) => ({ id: i.id, qty: i.qty })))}
+          value={JSON.stringify(items.map((i) => ({ id: i.id, optionId: i.optionId, qty: i.qty })))}
         />
 
         <div>
@@ -293,9 +294,9 @@ export function CheckoutForm({ fees, payment, deliveryArea, phone, phoneHref }: 
         </h2>
         <ul className="mt-4 space-y-3 text-sm">
           {items.map((i) => (
-            <li key={i.id} className="flex justify-between gap-4">
+            <li key={lineKey(i)} className="flex justify-between gap-4">
               <span>
-                {i.name} <span className="text-muted">× {i.qty}</span>
+                {nameWithOption(i.name, i.option)} <span className="text-muted">× {i.qty}</span>
               </span>
               <span className="font-medium">{formatUSD(fromCents(toCents(i.price) * i.qty))}</span>
             </li>

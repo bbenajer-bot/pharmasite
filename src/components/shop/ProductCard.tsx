@@ -51,11 +51,15 @@ export function ProductCard({ product }: { product: ProductSummary }) {
           {product.category.name}
         </p>
       )}
-      <h3 className={`font-semibold group-hover:text-brand-600 ${product.category ? 'mt-1' : 'mt-4'}`}>
+      <h3
+        className={`font-semibold group-hover:text-brand-600 ${product.category ? 'mt-1' : 'mt-4'}`}
+      >
         {product.name}
       </h3>
       <p className="mt-1 flex items-center gap-3">
-        <span className="font-semibold text-ink-soft">{formatUSD(product.price)}</span>
+        <span className="font-semibold text-ink-soft">
+          {product.priceVaries ? `From ${formatUSD(product.price)}` : formatUSD(product.price)}
+        </span>
         {outOfStock && (
           <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-muted">
             Out of stock

@@ -5,9 +5,10 @@ import Link from 'next/link'
 import { useRef, useState } from 'react'
 import { ArrowRight, Info, Minus, Package, Plus, ShoppingBag, Trash2 } from 'lucide-react'
 
-import { cart, useCart, useHydrated } from '@/components/shop/cart-store'
+import { cart, lineKey, useCart, useHydrated } from '@/components/shop/cart-store'
 import { useCartSync } from '@/components/shop/useCartSync'
 import { formatUSD, fromCents, toCents } from '@/lib/money'
+import { nameWithOption } from '@/lib/product-options'
 
 export function CartView() {
   const hydrated = useHydrated()
@@ -47,81 +48,86 @@ export function CartView() {
       ) : (
         <div className="grid gap-10 lg:grid-cols-[1fr_22rem]">
           <ul className="divide-y divide-line border-y border-line" aria-label="Items in your cart">
-            {items.map((item) => (
-              <li key={item.id} className="flex gap-4 py-6">
-                <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 to-surface sm:size-24">
-                  {item.image ? (
-                    <Image
-                      src={item.image}
-                      alt={item.imageAlt}
-                      fill
-                      sizes="96px"
-                      className="object-contain p-2"
-                    />
-                  ) : (
-                    <Package className="size-8 text-ink/20" aria-hidden />
-                  )}
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:justify-between">
-                  <div className="min-w-0">
-                    <Link
-                      href={`/shop/${item.slug}`}
-                      className="font-semibold hover:text-brand-600"
-                    >
-                      {item.name}
-                    </Link>
-                    <p className="mt-1 text-sm text-ink-soft">{formatUSD(item.price)} each</p>
+            {items.map((item) => {
+              const key = lineKey(item)
+              const label = nameWithOption(item.name, item.option)
+              return (
+                <li key={key} className="flex gap-4 py-6">
+                  <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 to-surface sm:size-24">
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.imageAlt}
+                        fill
+                        sizes="96px"
+                        className="object-contain p-2"
+                      />
+                    ) : (
+                      <Package className="size-8 text-ink/20" aria-hidden />
+                    )}
                   </div>
-                  <div className="flex items-center gap-4 sm:flex-col sm:items-end">
-                    <div
-                      className="flex items-center rounded-full border border-line"
-                      role="group"
-                      aria-label={`Quantity of ${item.name}`}
-                    >
-                      {/* aria-disabled, not disabled: a disabled button would drop keyboard focus.
+                  <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:justify-between">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/shop/${item.slug}`}
+                        className="font-semibold hover:text-brand-600"
+                      >
+                        {item.name}
+                      </Link>
+                      {item.option && <p className="mt-1 text-sm text-ink-soft">{item.option}</p>}
+                      <p className="mt-1 text-sm text-ink-soft">{formatUSD(item.price)} each</p>
+                    </div>
+                    <div className="flex items-center gap-4 sm:flex-col sm:items-end">
+                      <div
+                        className="flex items-center rounded-full border border-line"
+                        role="group"
+                        aria-label={`Quantity of ${label}`}
+                      >
+                        {/* aria-disabled, not disabled: a disabled button would drop keyboard focus.
                           setQty clamps, so clicking at the limit does nothing. */}
+                        <button
+                          type="button"
+                          className="rounded-full p-2 text-ink-soft hover:bg-brand-50 aria-disabled:opacity-40"
+                          onClick={() => cart.setQty(key, item.qty - 1)}
+                          aria-disabled={item.qty <= 1}
+                          aria-label={`Decrease quantity of ${label}`}
+                        >
+                          <Minus className="size-4" aria-hidden />
+                        </button>
+                        <span className="w-8 text-center font-semibold" aria-live="polite">
+                          {item.qty}
+                        </span>
+                        <button
+                          type="button"
+                          className="rounded-full p-2 text-ink-soft hover:bg-brand-50 aria-disabled:opacity-40"
+                          onClick={() => cart.setQty(key, item.qty + 1)}
+                          aria-disabled={item.qty >= item.maxQty}
+                          aria-label={`Increase quantity of ${label}`}
+                        >
+                          <Plus className="size-4" aria-hidden />
+                        </button>
+                      </div>
+                      <p className="font-semibold">
+                        {formatUSD(fromCents(toCents(item.price) * item.qty))}
+                      </p>
                       <button
                         type="button"
-                        className="rounded-full p-2 text-ink-soft hover:bg-brand-50 aria-disabled:opacity-40"
-                        onClick={() => cart.setQty(item.id, item.qty - 1)}
-                        aria-disabled={item.qty <= 1}
-                        aria-label={`Decrease quantity of ${item.name}`}
+                        className="inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-red-700"
+                        onClick={() => {
+                          cart.remove(key)
+                          // The button disappears; tell screen readers and keep focus in the cart.
+                          setRemoved(`Removed ${label} from your cart.`)
+                          cartRegion.current?.focus()
+                        }}
                       >
-                        <Minus className="size-4" aria-hidden />
-                      </button>
-                      <span className="w-8 text-center font-semibold" aria-live="polite">
-                        {item.qty}
-                      </span>
-                      <button
-                        type="button"
-                        className="rounded-full p-2 text-ink-soft hover:bg-brand-50 aria-disabled:opacity-40"
-                        onClick={() => cart.setQty(item.id, item.qty + 1)}
-                        aria-disabled={item.qty >= item.maxQty}
-                        aria-label={`Increase quantity of ${item.name}`}
-                      >
-                        <Plus className="size-4" aria-hidden />
+                        <Trash2 className="size-4" aria-hidden /> Remove
+                        <span className="sr-only"> {label}</span>
                       </button>
                     </div>
-                    <p className="font-semibold">
-                      {formatUSD(fromCents(toCents(item.price) * item.qty))}
-                    </p>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-red-700"
-                      onClick={() => {
-                        cart.remove(item.id)
-                        // The button disappears; tell screen readers and keep focus in the cart.
-                        setRemoved(`Removed ${item.name} from your cart.`)
-                        cartRegion.current?.focus()
-                      }}
-                    >
-                      <Trash2 className="size-4" aria-hidden /> Remove
-                      <span className="sr-only"> {item.name}</span>
-                    </button>
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              )
+            })}
           </ul>
 
           <aside

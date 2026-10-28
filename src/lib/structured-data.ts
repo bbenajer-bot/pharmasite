@@ -49,14 +49,26 @@ export function productSchema(product: ProductDetail) {
     ...(product.brand && { brand: { '@type': 'Brand', name: product.brand } }),
     ...(product.images.length > 0 && { image: product.images.map((i) => absoluteUrl(i.url)) }),
     ...(product.category && { category: product.category.name }),
-    offers: {
-      '@type': 'Offer',
-      url,
-      price: product.price.toFixed(2),
-      priceCurrency: 'USD',
-      availability: `https://schema.org/${product.stock > 0 ? 'InStock' : 'OutOfStock'}`,
-      seller: { '@id': pharmacyId() },
-    },
+    // Options with different prices: a price range (AggregateOffer) instead of a single price.
+    offers: product.priceVaries
+      ? {
+          '@type': 'AggregateOffer',
+          url,
+          lowPrice: product.price.toFixed(2),
+          highPrice: Math.max(...product.options.map((o) => o.price)).toFixed(2),
+          offerCount: product.options.length,
+          priceCurrency: 'USD',
+          availability: `https://schema.org/${product.stock > 0 ? 'InStock' : 'OutOfStock'}`,
+          seller: { '@id': pharmacyId() },
+        }
+      : {
+          '@type': 'Offer',
+          url,
+          price: product.price.toFixed(2),
+          priceCurrency: 'USD',
+          availability: `https://schema.org/${product.stock > 0 ? 'InStock' : 'OutOfStock'}`,
+          seller: { '@id': pharmacyId() },
+        },
   }
 }
 

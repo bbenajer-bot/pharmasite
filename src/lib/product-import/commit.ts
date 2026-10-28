@@ -187,7 +187,24 @@ export async function importProduct(
     isOTC: true,
     category: await categoryId(req, p.categoryName),
     ...(description ? { description } : {}),
+    optionName: p.optionName,
   }
+
+  // Options without a stock count keep the shop's current count (matched by SKU, else label), and
+  // start at the default for new options. Price and total stock are recalculated by the product hook.
+  const currentOptions = existing?.options ?? []
+  const productOptions = p.options.map((o) => {
+    const current = currentOptions.find((c) =>
+      o.sku ? c.sku === o.sku : c.label.trim().toLowerCase() === o.label.trim().toLowerCase(),
+    )
+    return {
+      ...(current?.id ? { id: current.id } : {}),
+      label: o.label,
+      price: o.price,
+      sku: o.sku,
+      stock: o.stock ?? current?.stock ?? options.defaultStock,
+    }
+  })
 
   if (existing) {
     const updated = await req.payload.update({
@@ -197,6 +214,7 @@ export async function importProduct(
         ...data,
         // Keep what the shop already has when the file has nothing.
         stock: p.stock ?? existing.stock,
+        options: productOptions,
         ...(imageIds.length ? { images: imageIds } : {}),
       },
       req,
@@ -210,6 +228,7 @@ export async function importProduct(
       ...data,
       slug: await freeSlug(req, p.name),
       stock: p.stock ?? options.defaultStock,
+      options: productOptions,
       images: imageIds,
     },
     req,

@@ -3,6 +3,7 @@ import { unstable_cache } from 'next/cache'
 import { getPayload, type Where } from 'payload'
 
 import { PRODUCTS_TAG, publicProductsWhere } from '@/collections/Products'
+import type { ProductOption } from '@/lib/product-options'
 import type { Category, Media, Product } from '@/payload-types'
 
 export const SHOP_PAGE_SIZE = 24
@@ -15,8 +16,12 @@ export type ProductSummary = {
   name: string
   brand: string | null
   summary: string
+  /** With options: the lowest option price. */
   price: number
+  /** With options: the total stock. */
   stock: number
+  /** Options with different prices: show "From $X". */
+  priceVaries: boolean
   category: { name: string; slug: string } | null
   image: ProductImage | null
 }
@@ -25,6 +30,16 @@ export type ProductDetail = ProductSummary & {
   sku: string | null
   images: ProductImage[]
   description: Product['description']
+  /** e.g. "Size"; null when not set. */
+  optionName: string | null
+  /** Empty for a product with one price. */
+  options: ProductOption[]
+}
+
+function toOptions(p: Product): ProductOption[] {
+  return (p.options ?? []).flatMap((o) =>
+    o.id ? [{ id: o.id, label: o.label, price: o.price, stock: o.stock, sku: o.sku ?? null }] : [],
+  )
 }
 
 function toImage(m: number | Media | null | undefined): ProductImage | null {
@@ -42,6 +57,7 @@ function toSummary(p: Product): ProductSummary {
     summary: p.summary,
     price: p.price,
     stock: p.stock,
+    priceVaries: new Set((p.options ?? []).map((o) => o.price)).size > 1,
     category: cat ? { name: cat.name, slug: cat.slug } : null,
     image: toImage(p.images?.[0]),
   }
@@ -113,6 +129,8 @@ export const getProductBySlug = unstable_cache(
       sku: p.sku ?? null,
       images: (p.images ?? []).map(toImage).filter((i): i is ProductImage => i !== null),
       description: p.description,
+      optionName: p.optionName?.trim() || null,
+      options: toOptions(p),
     }
   },
   ['product-by-slug'],

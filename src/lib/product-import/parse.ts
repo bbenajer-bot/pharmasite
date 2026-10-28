@@ -1,5 +1,7 @@
 import Papa from 'papaparse'
 
+import { MAX_OPTIONS } from '@/lib/product-options'
+
 /**
  * Reads a product CSV exported from WordPress / WooCommerce (Products → Export) into products for
  * this shop. Also accepts simpler spreadsheets (name, price, sku, description, category, stock, image).
@@ -10,6 +12,15 @@ export const MAX_IMPORT_IMAGES = 6
 const SUMMARY_MAX = 200
 const NAME_MAX = 120
 const SKU_MAX = 40
+
+/** One option (WooCommerce variation) of a product. */
+export type ImportOption = {
+  label: string
+  price: number
+  /** null = the file has no stock count for this option. */
+  stock: number | null
+  sku: string | null
+}
 
 /** One product ready to be created or updated. Descriptions are still HTML here. */
 export type ImportProduct = {
@@ -25,6 +36,10 @@ export type ImportProduct = {
   imageUrls: string[]
   status: 'active' | 'hidden'
   featured: boolean
+  /** e.g. "Size"; null without options. */
+  optionName: string | null
+  /** Empty for a product with one price. */
+  options: ImportOption[]
 }
 
 export type ImportRow = {
@@ -189,7 +204,17 @@ export function parseProductCsv(csv: string): ParseResult {
     return col ? unescapeWoo(r[col] ?? '').trim() : ''
   }
 
-  // Variable products: the parent row holds the shared details; each variation is its own product here.
+  // WooCommerce attribute columns ("Attribute 1 name", "Attribute 1 value(s)", …): on a variation row
+  // the values are that variation's own (e.g. "60 capsules").
+  const attributeColumns = headers.flatMap((h) => {
+    const n = /^attribute (\d+) name$/.exec(h)?.[1]
+    const values = n ? headers.find((v) => v === `attribute ${n} value(s)`) : undefined
+    return values ? [{ name: h, values }] : []
+  })
+  const cell = (r: CsvRecord, col: string) => decodeEntities(unescapeWoo(r[col] ?? '').trim())
+
+  // Variable products: the parent row holds the shared details and becomes one product; its
+  // variations (rows pointing to it in "Parent") become that product's options.
   const parents = new Map<string, CsvRecord>()
   for (const r of parsed.data) {
     if (get(r, 'type').toLowerCase().includes('variable')) {
@@ -197,14 +222,81 @@ export function parseProductCsv(csv: string): ParseResult {
       if (get(r, 'sku')) parents.set(get(r, 'sku'), r)
     }
   }
-  const variationCount = new Map<CsvRecord, number>()
+  const variationsOf = new Map<CsvRecord, CsvRecord[]>()
   for (const r of parsed.data) {
     if (!get(r, 'type').toLowerCase().includes('variation')) continue
     const parent = parents.get(get(r, 'parent'))
-    if (parent) variationCount.set(parent, (variationCount.get(parent) ?? 0) + 1)
+    if (parent) variationsOf.set(parent, [...(variationsOf.get(parent) ?? []), r])
   }
 
-  const rows: ImportRow[] = parsed.data.map((r, i): ImportRow => {
+  /** The options of a variable product, from its variation rows. */
+  const buildOptions = (parent: CsvRecord, warnings: string[]) => {
+    const parentName = decodeEntities(get(parent, 'name'))
+    const variations = variationsOf.get(parent) ?? []
+    const options: ImportOption[] = []
+    const images: string[] = []
+    const usedAttributes = new Set<string>()
+    let rx = false
+    for (const v of variations) {
+      const vName = decodeEntities(get(v, 'name'))
+      const published = get(v, 'published')
+      if (published !== '' && !truthy(published)) {
+        warnings.push(`Option “${vName || 'unnamed'}” isn’t published on the old site; skipped.`)
+        continue
+      }
+      if (options.length >= MAX_OPTIONS) {
+        warnings.push(`Only the first ${MAX_OPTIONS} options are imported.`)
+        break
+      }
+      const values = attributeColumns
+        .map((a) => {
+          const value = cell(v, a.values)
+          if (value) usedAttributes.add(a.name)
+          return value
+        })
+        .filter(Boolean)
+      // Without attribute columns, WooCommerce names variations "Parent - Value".
+      let label =
+        values.join(' / ') ||
+        vName
+          .replace(parentName, '')
+          .replace(/^\s*[-–—:,]\s*/, '')
+          .trim() ||
+        `Option ${options.length + 1}`
+      label = clip(label, 60)
+      if (options.some((o) => o.label.toLowerCase() === label.toLowerCase())) {
+        label = clip(`${label} (${get(v, 'sku') || options.length + 1})`, 60)
+      }
+
+      const rawPrice = get(v, 'price')
+      const price = parsePrice(rawPrice)
+      if (price == null) {
+        warnings.push(`Option “${label}” has no regular price; skipped.`)
+        continue
+      }
+      let stock = parseStock(get(v, 'stock'))
+      const inStock = get(v, 'inStock')
+      if (inStock && !truthy(inStock) && !/backorder/i.test(inStock)) stock = 0
+      let sku: string | null = get(v, 'sku') || null
+      if (sku && sku.length > SKU_MAX) {
+        warnings.push(`Option “${label}”: SKU longer than ${SKU_MAX} characters was dropped.`)
+        sku = null
+      }
+      options.push({ label, price, stock, sku })
+      images.push(...imageUrls(get(v, 'images')))
+      if (looksPrescription(vName)) rx = true
+    }
+    const optionName =
+      attributeColumns
+        .filter((a) => usedAttributes.has(a.name))
+        .map((a) => cell(parent, a.name) || cell(variations[0] ?? {}, a.name))
+        .filter(Boolean)
+        .join(' / ')
+        .slice(0, 40) || null
+    return { options, images, optionName, rx }
+  }
+
+  const rows = parsed.data.map((r, i): ImportRow | null => {
     const line = i + 2
     const warnings: string[] = []
     const type = get(r, 'type').toLowerCase()
@@ -218,12 +310,9 @@ export function parseProductCsv(csv: string): ParseResult {
       product: null,
     })
 
-    if (type.includes('variable')) {
-      const n = variationCount.get(r) ?? 0
-      return fail(
-        `Product with options: its ${n} variation${n === 1 ? ' is' : 's are'} imported as separate products.`,
-      )
-    }
+    const isVariable = type.includes('variable')
+    // Variations are imported as options of their parent product (when the parent is in the file).
+    if (type.includes('variation') && parents.has(get(r, 'parent'))) return null
     if (type.includes('grouped')) {
       return fail('Grouped products can’t be imported; import the products in the group instead.')
     }
@@ -243,14 +332,24 @@ export function parseProductCsv(csv: string): ParseResult {
       warnings.push(`Name shortened to ${NAME_MAX} characters.`)
     }
 
-    const rawPrice = get(r, 'price')
-    const price = parsePrice(rawPrice)
-    if (price == null) {
-      return fail(rawPrice ? `Price "${rawPrice}" isn’t a number.` : 'No regular price.')
-    }
-    const sale = parsePrice(get(r, 'salePrice'))
-    if (sale != null && sale < price) {
-      warnings.push(`Sale price $${sale.toFixed(2)} ignored; the regular price is used.`)
+    const variable = isVariable ? buildOptions(r, warnings) : null
+    let price: number
+    if (variable) {
+      if (variable.options.length === 0) {
+        return fail('Product with options, but none of its options (variations) could be imported.')
+      }
+      price = Math.min(...variable.options.map((o) => o.price))
+    } else {
+      const rawPrice = get(r, 'price')
+      const parsedPrice = parsePrice(rawPrice)
+      if (parsedPrice == null) {
+        return fail(rawPrice ? `Price "${rawPrice}" isn’t a number.` : 'No regular price.')
+      }
+      price = parsedPrice
+      const sale = parsePrice(get(r, 'salePrice'))
+      if (sale != null && sale < price) {
+        warnings.push(`Sale price $${sale.toFixed(2)} ignored; the regular price is used.`)
+      }
     }
 
     let sku: string | null = get(r, 'sku') || null
@@ -262,7 +361,17 @@ export function parseProductCsv(csv: string): ParseResult {
     let stock = parseStock(get(r, 'stock'))
     const inStock = get(r, 'inStock')
     if (inStock && !truthy(inStock) && !/backorder/i.test(inStock)) stock = 0
-    if (stock == null) warnings.push('No stock count in the file.')
+    if (variable) {
+      // The product total; the shop recalculates it from the options when saving.
+      const counts = variable.options.map((o) => o.stock)
+      stock = counts.every((c) => c == null)
+        ? null
+        : counts.reduce<number>((n, c) => n + (c ?? 0), 0)
+      if (counts.some((c) => c == null))
+        warnings.push('Some options have no stock count in the file.')
+    } else if (stock == null) {
+      warnings.push('No stock count in the file.')
+    }
 
     const descriptionHtml = field('description')
     const shortText = htmlToText(field('short'))
@@ -277,7 +386,7 @@ export function parseProductCsv(csv: string): ParseResult {
     }
 
     const categoriesRaw = field('categories')
-    const allImages = imageUrls(field('images'))
+    const allImages = [...new Set([...imageUrls(field('images')), ...(variable?.images ?? [])])]
     if (allImages.length > MAX_IMPORT_IMAGES) {
       warnings.push(`Only the first ${MAX_IMPORT_IMAGES} images are imported.`)
     }
@@ -288,7 +397,7 @@ export function parseProductCsv(csv: string): ParseResult {
       (published === '' || truthy(published)) && !hiddenInCatalog ? 'active' : 'hidden'
     if (status === 'hidden') warnings.push('Not published on the old site; imported as Hidden.')
 
-    const rx = looksPrescription(rawName, categoriesRaw, field('tags'))
+    const rx = looksPrescription(rawName, categoriesRaw, field('tags')) || Boolean(variable?.rx)
     if (rx) {
       warnings.push(
         'Mentions “Rx” or “prescription”. Prescription medicines must not be sold online; untick unless it’s really OTC.',
@@ -318,10 +427,13 @@ export function parseProductCsv(csv: string): ParseResult {
         imageUrls: allImages.slice(0, MAX_IMPORT_IMAGES),
         status,
         featured: truthy(get(r, 'featured')),
+        optionName: variable?.optionName ?? null,
+        options: variable?.options ?? [],
       },
     }
   })
 
-  if (!rows.length) return { rows, fileError: 'The file has no product rows.' }
-  return { rows, fileError: null }
+  const kept = rows.filter((row): row is ImportRow => row !== null)
+  if (!kept.length) return { rows: kept, fileError: 'The file has no product rows.' }
+  return { rows: kept, fileError: null }
 }

@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import { publicProductsWhere } from '@/collections/Products'
 import { fromCents, toCents } from '@/lib/money'
 import { getSiteSettings } from '@/lib/settings'
+import { lineKey, nameWithOption } from '@/lib/product-options'
 import { getShopSettings } from '@/lib/shop-settings'
 import { fulfillmentFeeCents, MAX_PER_LINE, type Fulfillment, type PaymentMethod } from '@/lib/shop'
 
@@ -36,13 +37,27 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ZIP_RE = /^\d{5}(-\d{4})?$/
 const STATE_RE = /^[A-Za-z]{2}$/
 
-function parseCart(raw: unknown): { id: number; qty: number }[] | null {
+type CartLine = { id: number; optionId: string | null; qty: number }
+
+function parseCart(raw: unknown): CartLine[] | null {
   try {
     const parsed: unknown = JSON.parse(String(raw ?? ''))
     if (!Array.isArray(parsed) || parsed.length === 0 || parsed.length > 50) return null
-    const lines = parsed.map((l) => ({ id: Number(l?.id), qty: Number(l?.qty) }))
-    if (lines.some((l) => !Number.isInteger(l.id) || !Number.isInteger(l.qty) || l.qty < 1)) return null
-    return lines
+    const lines = parsed.map((l) => ({
+      id: Number(l?.id),
+      optionId: typeof l?.optionId === 'string' && l.optionId ? l.optionId.slice(0, 64) : null,
+      qty: Number(l?.qty),
+    }))
+    if (lines.some((l) => !Number.isInteger(l.id) || !Number.isInteger(l.qty) || l.qty < 1))
+      return null
+    // The same product + option twice (two tabs): one line with the combined quantity.
+    const merged = new Map<string, CartLine>()
+    for (const l of lines) {
+      const key = lineKey(l)
+      const prev = merged.get(key)
+      merged.set(key, prev ? { ...prev, qty: prev.qty + l.qty } : l)
+    }
+    return [...merged.values()]
   } catch {
     return null
   }
@@ -72,14 +87,17 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
 
   if (!values.name) errors.name = 'Please enter your name.'
   else if (values.name.length > 100) errors.name = 'Please use 100 characters or fewer.'
-  if (!EMAIL_RE.test(values.email) || values.email.length > 200) errors.email = 'Please enter a valid email address.'
+  if (!EMAIL_RE.test(values.email) || values.email.length > 200)
+    errors.email = 'Please enter a valid email address.'
   const digits = values.phone.replace(/\D/g, '')
-  if (digits.length < 10 || values.phone.length > 30) errors.phone = 'Please enter a phone number with area code.'
+  if (digits.length < 10 || values.phone.length > 30)
+    errors.phone = 'Please enter a phone number with area code.'
 
   const fulfillment = settings.fulfillment.find((f) => f.value === values.fulfillment)?.value
   if (!fulfillment) errors.fulfillment = 'Please choose how you’d like to get your order.'
   if (fulfillment === 'local-delivery' || fulfillment === 'shipping') {
-    if (!values.line1 || values.line1.length > 120) errors.line1 = 'Please enter your street address.'
+    if (!values.line1 || values.line1.length > 120)
+      errors.line1 = 'Please enter your street address.'
     if (values.line2.length > 120) errors.line2 = 'Please use 120 characters or fewer.'
     if (!values.city || values.city.length > 60) errors.city = 'Please enter your city.'
     if (!STATE_RE.test(values.state)) errors.state = 'Use the 2-letter state code, e.g. IL.'
@@ -116,12 +134,24 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
         problems.push('An item in your cart is no longer available.')
         return null
       }
-      if (line.qty > MAX_PER_LINE) problems.push(`You can order up to ${MAX_PER_LINE} of ${p.name} online.`)
-      else if (line.qty > p.stock) {
-        problems.push(p.stock > 0 ? `Only ${p.stock} of ${p.name} left in stock.` : `${p.name} is out of stock.`)
+      // Products with options are sold by option only; price and stock come from that option.
+      const options = p.options ?? []
+      const option = line.optionId ? options.find((o) => o.id === line.optionId) : null
+      if (line.optionId ? !option : options.length > 0) {
+        problems.push(`${p.name} is no longer available in the option you chose.`)
+        return null
       }
-      const unitCents = toCents(p.price)
-      return { product: p, qty: line.qty, unitCents, lineCents: unitCents * line.qty }
+      const name = nameWithOption(p.name, option?.label)
+      const stock = option?.stock ?? p.stock
+      if (line.qty > MAX_PER_LINE)
+        problems.push(`You can order up to ${MAX_PER_LINE} of ${name} online.`)
+      else if (line.qty > stock) {
+        problems.push(
+          stock > 0 ? `Only ${stock} of ${name} left in stock.` : `${name} is out of stock.`,
+        )
+      }
+      const unitCents = toCents(option?.price ?? p.price)
+      return { product: p, option, name, qty: line.qty, unitCents, lineCents: unitCents * line.qty }
     })
     if (problems.length > 0) {
       return {
@@ -142,8 +172,10 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
       data: {
         items: ok.map((i) => ({
           product: i.product.id,
-          name: i.product.name,
-          sku: i.product.sku ?? undefined,
+          name: i.name,
+          option: i.option?.label,
+          optionId: i.option?.id ?? undefined,
+          sku: i.option?.sku ?? i.product.sku ?? undefined,
           unitPrice: fromCents(i.unitCents),
           quantity: i.qty,
           lineTotal: fromCents(i.lineCents),
@@ -157,7 +189,13 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
         phone: values.phone,
         fulfillment: fulfillment as Fulfillment,
         address: hasAddress
-          ? { line1: values.line1, line2: values.line2 || undefined, city: values.city, state: values.state, zip: values.zip }
+          ? {
+              line1: values.line1,
+              line2: values.line2 || undefined,
+              city: values.city,
+              state: values.state,
+              zip: values.zip,
+            }
           : undefined,
         paymentMethod: paymentMethod as PaymentMethod,
         // Set by the collection hook; required by the generated type.
@@ -165,13 +203,21 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
       },
     })
 
-    // Reserve stock. Returned automatically if the order is cancelled.
-    for (const i of ok) {
-      await payload.update({
-        collection: 'products',
-        id: i.product.id,
-        data: { stock: Math.max(0, i.product.stock - i.qty) },
-      })
+    // Reserve stock (returned automatically if the order is cancelled). One update per product: the
+    // same product can be in the cart in two options. Option stock changes recalculate the total.
+    for (const product of new Map(ok.map((i) => [i.product.id, i.product])).values()) {
+      const lines = ok.filter((i) => i.product.id === product.id)
+      const data = product.options?.length
+        ? {
+            options: product.options.map((o) => {
+              const ordered = lines
+                .filter((i) => i.option?.id === o.id)
+                .reduce((n, i) => n + i.qty, 0)
+              return { ...o, stock: Math.max(0, o.stock - ordered) }
+            }),
+          }
+        : { stock: Math.max(0, product.stock - lines.reduce((n, i) => n + i.qty, 0)) }
+      await payload.update({ collection: 'products', id: product.id, data })
     }
 
     return { status: 'success', token: order.accessToken ?? undefined }

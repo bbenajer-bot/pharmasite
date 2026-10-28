@@ -14,6 +14,8 @@ export type LiveProduct = {
   stock: number
   image: string | null
   imageAlt: string
+  /** Empty for products without options. */
+  options: { id: string; label: string; price: number; stock: number }[]
 }
 
 /**
@@ -22,7 +24,9 @@ export type LiveProduct = {
  */
 export async function getLiveProducts(ids: unknown): Promise<LiveProduct[]> {
   if (!Array.isArray(ids)) return []
-  const clean = [...new Set(ids.filter((id): id is number => Number.isInteger(id) && id > 0))].slice(0, 50)
+  const clean = [
+    ...new Set(ids.filter((id): id is number => Number.isInteger(id) && id > 0)),
+  ].slice(0, 50)
   if (clean.length === 0) return []
 
   const payload = await getPayload({ config })
@@ -44,6 +48,9 @@ export async function getLiveProducts(ids: unknown): Promise<LiveProduct[]> {
       stock: p.stock,
       image: media?.url ?? null,
       imageAlt: media?.alt ?? '',
+      options: (p.options ?? []).flatMap((o) =>
+        o.id ? [{ id: o.id, label: o.label, price: o.price, stock: o.stock }] : [],
+      ),
     }
   })
 }

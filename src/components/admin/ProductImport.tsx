@@ -344,8 +344,24 @@ export function ProductImport() {
                       {r.name}
                       {r.product?.sku && <p style={small}>SKU {r.product.sku}</p>}
                       {r.exists && <p style={small}>Already in the shop</p>}
+                      {r.product && r.product.options.length > 0 && (
+                        <p style={small}>
+                          {r.product.options.length} options
+                          {r.product.optionName ? ` (${r.product.optionName})` : ''}:{' '}
+                          {r.product.options
+                            .map(
+                              (o) =>
+                                `${o.label} $${o.price.toFixed(2)}${o.stock == null ? '' : `, ${o.stock} in stock`}`,
+                            )
+                            .join(' · ')}
+                        </p>
+                      )}
                     </td>
-                    <td style={cell}>{r.product ? `$${r.product.price.toFixed(2)}` : ''}</td>
+                    <td style={cell}>
+                      {r.product
+                        ? `${new Set(r.product.options.map((o) => o.price)).size > 1 ? 'from ' : ''}$${r.product.price.toFixed(2)}`
+                        : ''}
+                    </td>
                     <td style={cell}>{r.product ? (r.product.stock ?? '—') : ''}</td>
                     <td style={cell}>{r.product?.categoryName ?? ''}</td>
                     <td style={cell}>{r.product ? r.product.imageUrls.length : ''}</td>

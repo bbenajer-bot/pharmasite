@@ -108,6 +108,23 @@ export const Orders: CollectionConfig = {
             .findByID({ collection: 'products', id: productId, depth: 0, req })
             .catch(() => null)
           if (!product) continue
+          if (item.optionId) {
+            // Back to the option that was ordered; the product total is recalculated by its hook.
+            // If that option was deleted since, there's nowhere to return the stock to.
+            const options = product.options ?? []
+            if (!options.some((o) => o.id === item.optionId)) continue
+            await req.payload.update({
+              collection: 'products',
+              id: productId,
+              data: {
+                options: options.map((o) =>
+                  o.id === item.optionId ? { ...o, stock: o.stock + item.quantity } : o,
+                ),
+              },
+              req,
+            })
+            continue
+          }
           await req.payload.update({
             collection: 'products',
             id: productId,
@@ -199,7 +216,10 @@ export const Orders: CollectionConfig = {
                   type: 'row',
                   fields: [
                     { name: 'product', type: 'relationship', relationTo: 'products' },
+                    { name: 'option', type: 'text' },
                     { name: 'sku', label: 'SKU', type: 'text' },
+                    // Which product option was ordered, so cancelling returns stock to it.
+                    { name: 'optionId', type: 'text', admin: { hidden: true } },
                   ],
                 },
               ],

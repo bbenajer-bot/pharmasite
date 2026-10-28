@@ -85,15 +85,22 @@ export default async function ProductPage({ params }: Props) {
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">{product.name}</h1>
           {product.brand && <p className="mt-2 text-ink-soft">by {product.brand}</p>}
 
-          <p className="mt-6 text-3xl font-bold">{formatUSD(product.price)}</p>
-          <p className={`mt-2 text-sm font-semibold ${inStock ? 'text-mint-700' : 'text-muted'}`}>
-            {inStock ? 'In stock' : 'Out of stock. Call us to check when it’s back.'}
+          {/* With options, the picker below shows the chosen option's price and stock. */}
+          <p className="mt-6 text-3xl font-bold">
+            {product.priceVaries ? `From ${formatUSD(product.price)}` : formatUSD(product.price)}
           </p>
+          {(!inStock || product.options.length === 0) && (
+            <p className={`mt-2 text-sm font-semibold ${inStock ? 'text-mint-700' : 'text-muted'}`}>
+              {inStock ? 'In stock' : 'Out of stock. Call us to check when it’s back.'}
+            </p>
+          )}
 
           <p className="mt-6 text-lg leading-relaxed text-ink-soft">{product.summary}</p>
 
           <AddToCart
             stock={product.stock}
+            options={product.options}
+            optionName={product.optionName}
             product={{
               id: product.id,
               slug: product.slug,
@@ -119,7 +126,9 @@ export default async function ProductPage({ params }: Props) {
             </p>
           </div>
 
-          {product.sku && <p className="mt-6 text-xs text-muted">SKU: {product.sku}</p>}
+          {product.sku && product.options.length === 0 && (
+            <p className="mt-6 text-xs text-muted">SKU: {product.sku}</p>
+          )}
         </div>
       </div>
 

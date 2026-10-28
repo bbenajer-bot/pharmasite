@@ -4,6 +4,49 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-28 — Session 13: product options (sizes / counts / flavors)
+
+**Why:** the client's WooCommerce export has variable products; importing each variation as its own product
+gave near-duplicate cards. User asked to fix it before importing (nothing had been imported yet).
+
+**Done**
+- `src/lib/product-options.ts`: shared helpers (`optionTotals`, `nameWithOption`, `lineKey`, `MAX_OPTIONS` = 30).
+- **Products:** optional `optionName` + `options` array (label, price, stock, SKU) on the Price & stock tab. A
+  `beforeValidate` hook sets the product price = lowest option price, stock = total, so cards, sorting, "Out of
+  stock", sitemap etc. work unchanged. Labels must be unique. Main price can be left empty when options exist.
+- **Shop:** cards show "From $X" when option prices differ. Product page: accessible picker (fieldset/legend,
+  radios, out-of-stock options disabled, arrow keys, visible focus); price, stock, SKU follow the choice.
+  JSON-LD uses `AggregateOffer` (low/high price) for such products.
+- **Cart** (localStorage, same key `pharmacy-cart-v1`): lines carry `optionId` + `option`; product+option is one
+  line (`lineKey`). Old carts load (no option). Sync drops lines whose option is gone, or that have no option
+  for a product that now has options, with a notice.
+- **Checkout:** server reads price/stock from the chosen option; merges duplicate lines; one stock update per
+  product (options' own stock reduced). **Orders** items gain `option` + hidden `optionId`; the line name is
+  "Product – Option" (emails and order page unchanged); SKU = option SKU. Cancelling returns stock to the option.
+- **CSV import:** a WooCommerce variable product + its variations → one product with options. Labels from
+  "Attribute N value(s)" (else the variation name minus the parent name); option name from the attribute names;
+  per-variation price/stock/SKU; unpublished or price-less variations skipped with a note; variation images added
+  to the product's. Re-import (update) keeps option ids (matched by SKU, else label) and current stock when the
+  file has none. Preview shows the options under each product. Variations whose parent isn't in the file are
+  still imported as separate products (as before).
+- Migration `20261028_174732_product_options` (additive: `products_options` table, 3 columns).
+
+**Verified** (local, dev server; all test data removed afterwards)
+- Import via the admin API with a sample WooCommerce CSV: 6 rows → 3 products; prices/totals/default stock right;
+  re-import with "update" kept option ids and in-shop stock, no duplicates.
+- Browser (Puppeteer, 390px): picker, keyboard arrows, two sizes + a plain product in the cart, quantity buttons
+  per line, checkout → order with option/SKU/price per line; option stock reduced; cancel → stock returned.
+- Cart edge cases (old line, deleted option, changed price) → removed / updated with notices.
+- axe: 0 violations on the product page at 390 and 1280px. Admin: product with options created in the UI with
+  the main price empty → price/stock filled in. Duplicate labels rejected (400).
+- typecheck + `pnpm build` pass.
+
+**Next**
+- Push → client's Netlify deploys and migrates. Then the user imports the real CSV on the live admin (check the
+  preview first), and we run the live end-to-end order test.
+
+---
+
 ## 2026-10-28 — Session 12: image storage (UploadThing)
 
 **Decision (user):** no card or PayPal available, so **UploadThing replaces Cloudflare R2** (R2 requires a payment

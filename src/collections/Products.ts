@@ -1,6 +1,7 @@
 import type { CollectionConfig, Where } from 'payload'
 
 import { slugField } from '@/fields/slug'
+import { MAX_OPTIONS, optionTotals } from '@/lib/product-options'
 import { refreshCache } from '@/lib/revalidate'
 
 export const PRODUCTS_TAG = 'products'
@@ -93,7 +94,17 @@ export const Products: CollectionConfig = {
           Array.isArray(p.imageUrls) &&
           p.imageUrls.length <= 6 &&
           p.imageUrls.every((u) => typeof u === 'string') &&
-          (p.status === 'active' || p.status === 'hidden')
+          (p.status === 'active' || p.status === 'hidden') &&
+          (p.optionName === null || typeof p.optionName === 'string') &&
+          Array.isArray(p.options) &&
+          p.options.length <= MAX_OPTIONS &&
+          (p.options as Record<string, unknown>[]).every(
+            (o) =>
+              typeof o?.label === 'string' &&
+              typeof o.price === 'number' &&
+              (o.stock === null || typeof o.stock === 'number') &&
+              (o.sku === null || typeof o.sku === 'string'),
+          )
         if (!valid) return Response.json({ error: 'Invalid product data.' }, { status: 400 })
 
         const { importProduct } = await import('@/lib/product-import/commit')
@@ -123,6 +134,21 @@ export const Products: CollectionConfig = {
     delete: ({ req }) => Boolean(req.user),
   },
   hooks: {
+    beforeValidate: [
+      // With options, the product's own price and stock are the lowest option price and the total
+      // stock, so shop cards, sorting and "Out of stock" work the same for every product.
+      ({ data }) => {
+        const options = data?.options as
+          { price?: number | null; stock?: number | null }[] | undefined
+        const valid = options?.filter(
+          (o) => typeof o.price === 'number' && typeof o.stock === 'number',
+        )
+        if (data && valid && valid.length > 0) {
+          Object.assign(data, optionTotals(valid as { price: number; stock: number }[]))
+        }
+        return data
+      },
+    ],
     afterChange: [
       ({ doc }) => {
         refreshCache([PRODUCTS_TAG], ['/', '/shop', `/shop/${doc.slug}`])
@@ -182,7 +208,11 @@ export const Products: CollectionConfig = {
                   type: 'number',
                   required: true,
                   min: 0,
-                  admin: { step: 0.01 },
+                  admin: {
+                    step: 0.01,
+                    description:
+                      'With options below: set automatically to the lowest option price.',
+                  },
                 },
                 {
                   name: 'stock',
@@ -191,7 +221,11 @@ export const Products: CollectionConfig = {
                   required: true,
                   min: 0,
                   defaultValue: 0,
-                  admin: { step: 1, description: '0 shows "Out of stock".' },
+                  admin: {
+                    step: 1,
+                    description:
+                      '0 shows "Out of stock". With options: the total, set automatically.',
+                  },
                   validate: (value: number | null | undefined) =>
                     value == null || Number.isInteger(value) || 'Use a whole number.',
                 },
@@ -200,6 +234,69 @@ export const Products: CollectionConfig = {
                   label: 'SKU / UPC',
                   type: 'text',
                   maxLength: 40,
+                },
+              ],
+            },
+            {
+              name: 'optionName',
+              label: 'Option name',
+              type: 'text',
+              maxLength: 40,
+              admin: {
+                description: 'Only for products with options, e.g. Size, Count, Flavor.',
+                condition: (data) => Boolean(data?.options?.length),
+              },
+            },
+            {
+              name: 'options',
+              type: 'array',
+              labels: { singular: 'Option', plural: 'Options' },
+              maxRows: MAX_OPTIONS,
+              admin: {
+                description:
+                  'Leave empty for a product with one price. Add options (sizes, counts, flavors) when each has its own price or stock; customers then pick one.',
+                initCollapsed: false,
+              },
+              validate: (value: unknown) => {
+                const labels = ((value as { label?: string }[] | null) ?? []).map((o) =>
+                  (o.label ?? '').trim().toLowerCase(),
+                )
+                return (
+                  new Set(labels).size === labels.length || 'Each option needs a different label.'
+                )
+              },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'label',
+                      type: 'text',
+                      required: true,
+                      maxLength: 60,
+                      admin: { width: '40%', description: 'e.g. 60 capsules' },
+                    },
+                    {
+                      name: 'price',
+                      label: 'Price (USD)',
+                      type: 'number',
+                      required: true,
+                      min: 0,
+                      admin: { step: 0.01 },
+                    },
+                    {
+                      name: 'stock',
+                      label: 'In stock',
+                      type: 'number',
+                      required: true,
+                      min: 0,
+                      defaultValue: 0,
+                      admin: { step: 1 },
+                      validate: (value: number | null | undefined) =>
+                        value == null || Number.isInteger(value) || 'Use a whole number.',
+                    },
+                    { name: 'sku', label: 'SKU / UPC', type: 'text', maxLength: 40 },
+                  ],
                 },
               ],
             },
