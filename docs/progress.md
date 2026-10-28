@@ -21,13 +21,25 @@ method on file even on the free tier). UploadThing free plan, no card; official 
 - Accounts created by the user in the client's name: GitHub, Netlify, Neon, Resend, UploadThing.
   Cloudflare (domain) and business email later; the domain is the one item that needs a card.
 
-**Verified**
-- typecheck + `pnpm build` pass; local schema has the new columns. Not yet tested with a real token.
+- **Payload bug worked around** (`src/collections/Media.ts` beforeChange hook): with `clientUploads`, the cloud-storage
+  plugin (3.90.2, same in 3.92.1) skips `handleUpload` for files the browser already sent, but that's the only place
+  the UploadThing adapter stores `_key`. Admin uploads landed in UploadThing yet 404'd on the site. The hook copies
+  the key from `req.file.clientUploadContext`. Remove when Payload fixes it.
+- **Moved to the client's GitHub:** `origin` = https://github.com/bbenajer-bot/pharmasite (user pushed; `camilleyeyou`
+  is a collaborator). Old repo kept as remote `personal` (the old preview still deploys from it).
+- Client's Netlify site created with env vars; its first deploy ran all migrations on the client's Neon DB
+  (`ep-steep-truth…`, 22 tables, 0 users). Local `.env` `NEON_DATABASE_URL` → client's DB.
+
+**Verified** (real UploadThing token, local DB)
+- Server-side upload (Local API, as the CSV import does): file in UploadThing, not on disk; served at
+  `/api/media/file/…`; deleting the record deletes the UploadThing file.
+- Admin upload in a browser (Puppeteer, temp admin): file goes browser → UploadThing, key saved, image served (200),
+  no console errors; delete removes it from UploadThing. Test records, UploadThing test files and temp admin removed.
+- typecheck + `pnpm build` pass.
 
 **Next**
-- Put `UPLOADTHING_TOKEN` in local `.env` → test an upload in the admin, check the file is in UploadThing and shows
-  on the site, delete it (file removed from UploadThing too).
-- Move the site to the client's accounts (repo, Netlify site, Neon DB, env vars).
+- On the client's site: create the admin login at `/admin`; `DATABASE_URL="$NEON_DATABASE_URL" pnpm seed:legal`;
+  one upload on the live admin; end-to-end order + prescription test.
 
 ---
 
