@@ -69,6 +69,9 @@ export default buildConfig({
     // Dev uses schema push. Production (Neon) gets migrations from src/migrations, applied by the
     // `ci` script (Netlify build). After changing collections or globals:
     // `pnpm payload migrate:create <name>` and commit the files.
+    // Never push to Neon, even from a local script (`DATABASE_URL=<Neon> pnpm seed:…` runs in dev mode):
+    // a push leaves a "dev" row in payload_migrations that makes the next `payload migrate` stop and ask.
+    push: !process.env.DATABASE_URL?.includes('neon.tech'),
   }),
   sharp,
   plugins: [
