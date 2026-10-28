@@ -24,6 +24,9 @@ import { cronMaintenance } from './endpoints/cron'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+// Tolerate a token pasted into Netlify with the quotes or spaces it has in .env.
+const uploadthingToken = process.env.UPLOADTHING_TOKEN?.trim().replace(/^(['"])(.*)\1$/, '$2').trim()
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -78,13 +81,13 @@ export default buildConfig({
     // Production (Netlify has no permanent disk): uploads go to UploadThing (free plan, no card).
     // Without UPLOADTHING_TOKEN (local dev) they stay in ./media. Images keep their /api/media/file/… URLs.
     uploadthingStorage({
-      enabled: Boolean(process.env.UPLOADTHING_TOKEN),
+      enabled: Boolean(uploadthingToken),
       // Same schema with or without the token, so one migration fits dev and production.
       alwaysInsertFields: true,
       // The admin's browser sends files straight to UploadThing: Netlify functions reject bodies over ~6 MB.
       clientUploads: true,
       collections: { media: true },
-      options: { token: process.env.UPLOADTHING_TOKEN, acl: 'public-read' },
+      options: { token: uploadthingToken, acl: 'public-read' },
     }),
   ],
 })

@@ -7,8 +7,6 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
-  // Used only by the product CSV import (HTML descriptions → rich text); don't bundle it.
-  serverExternalPackages: ['jsdom'],
   images: {
     localPatterns: [
       {

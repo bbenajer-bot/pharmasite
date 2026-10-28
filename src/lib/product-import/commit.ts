@@ -36,9 +36,22 @@ function prepareHtml(html: string): string {
 async function toRichText(payload: Payload, html: string): Promise<Product['description']> {
   const prepared = prepareHtml(html)
   if (!prepared) return null
-  const { JSDOM } = await import('jsdom')
+  const { parseHTML } = await import('linkedom')
+  // The converter only needs `new JSDOM(html).window.document`. linkedom is plain JavaScript; jsdom
+  // reads extra files at runtime that Netlify's function bundle leaves out.
+  class Dom {
+    window: { document: Document }
+    constructor(body: string) {
+      const { document } = parseHTML(`<!doctype html><html><body>${body}</body></html>`)
+      this.window = { document: document as unknown as Document }
+    }
+  }
   const editorConfig = await editorConfigFactory.default({ config: payload.config })
-  return convertHTMLToLexical({ editorConfig, html: prepared, JSDOM }) as Product['description']
+  return convertHTMLToLexical({
+    editorConfig,
+    html: prepared,
+    JSDOM: Dom as unknown as Parameters<typeof convertHTMLToLexical>[0]['JSDOM'],
+  }) as Product['description']
 }
 
 /** The import downloads images from the old site; never from this server's own network. */
@@ -174,7 +187,8 @@ export async function importProduct(
         { err, name: p.name },
         'Product import: description conversion failed',
       )
-      warnings.push('The description could not be converted; add it by hand.')
+      const reason = err instanceof Error ? err.message.replace(/\s+/g, ' ').slice(0, 300) : String(err)
+      warnings.push(`The description could not be converted (${reason}); add it by hand.`)
     }
   }
 
