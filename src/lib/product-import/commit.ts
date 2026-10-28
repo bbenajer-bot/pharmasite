@@ -95,7 +95,10 @@ async function importImage(
     return { id: media.id }
   } catch (err) {
     req.payload.logger.warn({ err, url }, 'Product import: image download failed')
-    return { error: `Image could not be saved: ${url}` }
+    // Show the reason in the import screen too: the server logs are hard to reach on Netlify.
+    const reason =
+      err instanceof Error ? err.message.replace(/\s+/g, ' ').slice(0, 300) : String(err)
+    return { error: `Image could not be saved (${reason}): ${url}` }
   }
 }
 
