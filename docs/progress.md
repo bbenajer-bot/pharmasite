@@ -4,6 +4,25 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-28 — Session 14: live site checks (photos + descriptions on Netlify)
+
+**Done**
+- Live tests on the client's Netlify + Neon: checkout (order #1001) and a prescription request work.
+  Removed an unsuitable test catalog the user imported by mistake.
+- Product import now shows *why* an image or description failed in the results list under "Done."
+  (Netlify function logs are hard for the user to reach).
+- Photos failed on Netlify with UploadThing "Invalid token": the token was pasted into Netlify with the
+  single quotes it has in `.env`. `payload.config.ts` now strips surrounding quotes/spaces.
+- Description conversion failed on Netlify: jsdom reads files at runtime that the function bundle
+  leaves out. Replaced with linkedom (bundled, same Lexical output); jsdom removed.
+- Verified live: import of `qa-test-products.csv` saves both images to UploadThing (`_key` set),
+  product pages serve them through `/_next/image`, and the Vitamin D3 description converts.
+
+**Still to clean up on live**: QA products 105–107, order #1001, prescription request #1001.
+
+**Next**: Resend (`RESEND_API_KEY`, `EMAIL_FROM`, notify email in Shop Settings); domain + `NEXT_PUBLIC_SITE_URL`;
+remove `NEXT_PUBLIC_PREVIEW_MODE` at launch; turn off the Netlify badge; NPP text; booking decision; `pnpm lint` fix.
+
 ## 2026-10-28 — Session 13: product options (sizes / counts / flavors)
 
 **Why:** the client's WooCommerce export has variable products; importing each variation as its own product
