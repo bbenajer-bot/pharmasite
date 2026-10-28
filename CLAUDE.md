@@ -35,7 +35,7 @@ Public site + online shop + blog + prescription request form + admin dashboard.
 | Styling | Tailwind CSS v4 (tokens in `src/app/(frontend)/styles.css`) |
 | Icons | lucide-react |
 | Email | Resend (free tier) — added in Phase 3 |
-| Image storage (prod) | Cloudflare R2 (free tier) — added in Phase 7 |
+| Image storage (prod) | UploadThing (free plan, no card; replaces Cloudflare R2, which needs a card) |
 | Hosting | **Netlify** free plan (Vercel Hobby forbids commercial use — don't use it) |
 
 ## Commands

@@ -1,6 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { uploadthingStorage } from '@payloadcms/storage-uploadthing'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -70,5 +71,17 @@ export default buildConfig({
     // `pnpm payload migrate:create <name>` and commit the files.
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    // Production (Netlify has no permanent disk): uploads go to UploadThing (free plan, no card).
+    // Without UPLOADTHING_TOKEN (local dev) they stay in ./media. Images keep their /api/media/file/… URLs.
+    uploadthingStorage({
+      enabled: Boolean(process.env.UPLOADTHING_TOKEN),
+      // Same schema with or without the token, so one migration fits dev and production.
+      alwaysInsertFields: true,
+      // The admin's browser sends files straight to UploadThing: Netlify functions reject bodies over ~6 MB.
+      clientUploads: true,
+      collections: { media: true },
+      options: { token: process.env.UPLOADTHING_TOKEN, acl: 'public-read' },
+    }),
+  ],
 })

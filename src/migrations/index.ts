@@ -6,6 +6,7 @@ import * as migration_20261019_194234_media_source_url from './20261019_194234_m
 import * as migration_20261019_195808_blog from './20261019_195808_blog';
 import * as migration_20261019_205309_prescription_requests from './20261019_205309_prescription_requests';
 import * as migration_20261020_190656_legal_pages from './20261020_190656_legal_pages';
+import * as migration_20261028_160627_uploadthing_storage from './20261028_160627_uploadthing_storage';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20261020_190656_legal_pages.up,
     down: migration_20261020_190656_legal_pages.down,
-    name: '20261020_190656_legal_pages'
+    name: '20261020_190656_legal_pages',
+  },
+  {
+    up: migration_20261028_160627_uploadthing_storage.up,
+    down: migration_20261028_160627_uploadthing_storage.down,
+    name: '20261028_160627_uploadthing_storage'
   },
 ];

@@ -4,6 +4,33 @@ Newest entry on top. Each session: what got done, what's unfinished, what's next
 
 ---
 
+## 2026-10-28 — Session 12: image storage (UploadThing)
+
+**Decision (user):** no card or PayPal available, so **UploadThing replaces Cloudflare R2** (R2 requires a payment
+method on file even on the free tier). UploadThing free plan, no card; official adapter maintained by Payload.
+
+**Done**
+- `@payloadcms/storage-uploadthing@3.90.2` (pinned to the Payload version) on the Media collection
+  (`src/payload.config.ts`). On only when `UPLOADTHING_TOKEN` is set; without it (local dev) uploads stay in ./media.
+  - `clientUploads`: the admin's browser sends files straight to UploadThing (Netlify rejects bodies > ~6 MB).
+  - `alwaysInsertFields`: same `media` columns with or without the token. Migration
+    `20261028_160627_uploadthing_storage` (adds `_key`, `prefix`, `_objectkey`).
+  - Image URLs unchanged (`/api/media/file/…`, served through Payload), so next.config and the CSV import's
+    image downloads need no change.
+- `.env.example`, CLAUDE.md stack table, build plan updated.
+- Accounts created by the user in the client's name: GitHub, Netlify, Neon, Resend, UploadThing.
+  Cloudflare (domain) and business email later; the domain is the one item that needs a card.
+
+**Verified**
+- typecheck + `pnpm build` pass; local schema has the new columns. Not yet tested with a real token.
+
+**Next**
+- Put `UPLOADTHING_TOKEN` in local `.env` → test an upload in the admin, check the file is in UploadThing and shows
+  on the site, delete it (file removed from UploadThing too).
+- Move the site to the client's accounts (repo, Netlify site, Neon DB, env vars).
+
+---
+
 ## 2026-10-20 — Session 11: Phase 6 performance pass
 
 **Done**

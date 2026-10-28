@@ -70,8 +70,8 @@ Each phase ends with `pnpm build` passing and a quick check in the browser (desk
 - [x] Performance pass (Lighthouse ≥ 90 on mobile) — 96–100 on every page
 
 ## Phase 7 — Deploy + handoff
-- [ ] Accounts in the client's name: GitHub (private repo), Neon, Netlify, Resend, Cloudflare
-- [ ] Cloudflare R2 storage adapter for media uploads
+- [ ] Accounts in the client's name: GitHub, Neon, Netlify, Resend, UploadThing created (2026-10-28); Cloudflare + business email still to do
+- [ ] UploadThing storage for media uploads (replaces Cloudflare R2: R2 needs a card on file) — code done, test with the token
 - [ ] Deploy to Netlify, set env vars, run migrations against Neon
 - [ ] Register domain (Cloudflare Registrar), connect to Netlify, HTTPS
 - [ ] Business email (Zoho Mail free or Cloudflare Email Routing → Gmail); verify domain in Resend
